@@ -3,6 +3,8 @@
             [clojure.set]
             [clojure.string]))
 
+;; levels of difficulty: elementary -> easy -> medium -> hard
+
 ;; 001 - Nothing but the Truth (elementary)  
 
 (= true true) ; true
@@ -99,8 +101,25 @@
 
 (= '(6 7) (filter #(> % 5) '(3 4 5 6 7))) ; true
 
-;; 019 - Last Element (easy)  
+;; 019 - Last Element (easy)
+
+(= (reduce (fn [_ n] n) nil [1 2 3 4 5]) 5)     ; true
+(= (reduce (fn [_ n] n) nil []) nil)            ; true
+(= (reduce (fn [_ n] n) nil [1]) 1)             ; true
+(= (reduce (fn [_ n] n) nil [1 2]) 2)           ; true
+(= (reduce (fn [_ n] n) nil '(5 4 3)) 3)        ; true
+(= (reduce (fn [_ n] n) nil ["b" "c" "d"]) "d") ; true
+
 ;; 020 - Penultimate Element (easy)  
+
+(= (#(first (last (partition 2 1 %))) (list 1 2 3 4 5)) 4)  ; true
+(= (#(first (last (partition 2 1 %))) ["a" "b" "c"]) "b")   ; true
+(= (#(first (last (partition 2 1 %))) [[1 2] [3 4]]) [1 2]) ; true
+
+(= ((comp first (partial take-last 2)) (list 1 2 3 4 5)) 4)  ; true
+(= ((comp first (partial take-last 2)) ["a" "b" "c"]) "b")   ; true
+(= ((comp first (partial take-last 2)) [[1 2] [3 4]]) [1 2]) ; true
+
 ;; 021 - Nth Element (easy)  
 ;; 022 - Count a Sequence (easy)  
 ;; 023 - Reverse a Sequence (easy)  
