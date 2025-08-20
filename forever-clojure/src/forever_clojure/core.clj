@@ -121,12 +121,74 @@
 (= ((comp first (partial take-last 2)) [[1 2] [3 4]]) [1 2]) ; true
 
 ;; 021 - Nth Element (easy)  
+
+(= (#(first (drop %2 %1)) '(4 5 6 7) 2) 6)               ; true
+(= (#(first (drop %2 %1)) [:a :b :c] 0) :a)              ; true
+(= (#(first (drop %2 %1)) [1 2 3 4] 1) 2)                ; true
+(= (#(first (drop %2 %1)) '([1 2] [3 4] [5 6]) 2) [5 6]) ; true
+
 ;; 022 - Count a Sequence (easy)  
+
+(= (#(reduce (fn [n _m] (inc n)) 0 %) '(1 2 3 3 1)) 5)        ; true
+(= (#(reduce (fn [n _m] (inc n)) 0 %) "Hello World") 11)      ; true
+(= (#(reduce (fn [n _m] (inc n)) 0 %) [[1 2] [3 4] [5 6]]) 3) ; true
+(= (#(reduce (fn [n _m] (inc n)) 0 %) '(13)) 1)               ; true
+(= (#(reduce (fn [n _m] (inc n)) 0 %) '(:a :b :c)) 3)         ; true
+
 ;; 023 - Reverse a Sequence (easy)  
+
+(= (#(reduce conj nil %) [1 2 3 4 5]) [5 4 3 2 1])                 ; true
+(= (#(reduce conj nil %) (sorted-set 5 7 2 7)) '(7 5 2))           ; true
+(= (#(reduce conj nil %) [[1 2] [3 4] [5 6]]) [[5 6] [3 4] [1 2]]) ; true
+
 ;; 024 - Sum It All Up (easy)  
+
+(= (#(apply + %) [1 2 3]) 6)          ; true
+(= (#(apply + %) (list 0 -2 5 5)) 8)  ; true
+(= (#(apply + %) #{4 2 1}) 7)         ; true
+(= (#(apply + %) '(0 0 -1)) -1)       ; true
+(= (#(apply + %) '(1 10 3)) 14)       ; true
+
+(= (#(reduce + %) [1 2 3]) 6)         ; true
+(= (#(reduce + %) (list 0 -2 5 5)) 8) ; true
+(= (#(reduce + %) #{4 2 1}) 7)        ; true
+(= (#(reduce + %) '(0 0 -1)) -1)      ; true
+(= (#(reduce + %) '(1 10 3)) 14)      ; true
+
 ;; 025 - Find the odd numbers (easy)  
+
+(= (#(filter odd? %) #{1 2 3 4 5}) '(1 3 5))     ; true
+(= (#(filter odd? %)  [4 2 1 6])    '(1))        ; true
+(= (#(filter odd? %)  [2 2 4 6])    '())         ; true
+(= (#(filter odd? %)  [1 1 1 3])    '(1 1 1 3))  ; true
+
+; if `filter` is not allowed
+(= (#(reduce (fn [n1 n2] (if (odd? n2) (conj n1 n2) n1)) [] %) #{1 2 3 4 5}) '(1 3 5))    ; true
+(= (#(reduce (fn [n1 n2] (if (odd? n2) (conj n1 n2) n1)) [] %)  [4 2 1 6])    '(1))       ; true
+(= (#(reduce (fn [n1 n2] (if (odd? n2) (conj n1 n2) n1)) [] %)  [2 2 4 6])    '())        ; true
+(= (#(reduce (fn [n1 n2] (if (odd? n2) (conj n1 n2) n1)) [] %)  [1 1 1 3])    '(1 1 1 3)) ; true
+
 ;; 026 - Fibonacci Sequence (easy)  
+
+(defn fib [n] (->> [1 1]
+                   (iterate (fn [[a b]] [b (+' a b)]))
+                   (map first)
+                   (take n)))
+
+(= (fib 3) '(1 1 2))             ; true
+(= (fib 6) '(1 1 2 3 5 8))       ; true
+(= (fib 8) '(1 1 2 3 5 8 13 21)) ; true
+
 ;; 027 - Palindrome Detector (easy)  
+
+(defn palindrome? [coll] (= (reverse coll) (seq coll)))
+
+(false? (palindrome? '(1 2 3 4 5)))      ; true
+(true?  (palindrome?  "racecar"))        ; true
+(true?  (palindrome?  [:foo :bar :foo])) ; true
+(true?  (palindrome?  '(1 1 3 3 1 1)))   ; true
+(false? (palindrome?  '(:a :b :c)))      ; true
+
 ;; 028 - Flatten a Sequence (easy)  
 ;; 029 - Get the Caps (easy)  
 ;; 030 - Compress a Sequence (easy)  
