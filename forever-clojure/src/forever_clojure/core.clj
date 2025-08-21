@@ -458,6 +458,14 @@
 (= (take 9   (iterate-me #(inc (mod % 3)) 1)) (take 9 (cycle [1 2 3]))) ; true
 
 ;; 063 - Group a Sequence (easy)
+
+(defn group-a-sequence [f coll]
+  (reduce #(update-in %1 [(f %2)] concat [%2]) {} coll))
+
+(= (group-a-sequence #(> % 5) #{1 3 6 8})                    {false [1 3], true [6 8]})                   ; true
+(= (group-a-sequence #(apply / %) [[1 2] [2 4] [4 6] [3 6]]) {1/2 [[1 2] [2 4] [3 6]], 2/3 [[4 6]]})      ; true
+(= (group-a-sequence count [[1] [1 2] [3] [1 2 3] [2 3]])    {1 [[1] [3]], 2 [[1 2] [2 3]], 3 [[1 2 3]]}) ; true
+
 ;; 064 - Intro to Reduce (elementary)
 
 (= 15 (reduce + [1 2 3 4 5])) ; true
@@ -466,6 +474,17 @@
 
 ;; 065 - Black Box Testing (medium)
 ;; 066 - Greatest Common Divisor (easy)
+
+(defn gcd [a b]
+  (if (zero? b)
+    a
+    (recur b (mod a b))))
+
+(= (gcd 2 4)       2) ; true
+(= (gcd 10 5)      5) ; true
+(= (gcd 5 7)       1) ; true
+(= (gcd 1023 858) 33) ; true
+
 ;; 067 - Prime Numbers (medium)
 ;; 068 - Recurring Theme (elementary)
 
@@ -501,22 +520,169 @@
 ;; 079 - Triangle Minimal Path (hard)
 ;; 080 - Perfect Numbers (medium)
 ;; 081 - Set Intersection (easy)
+
+(#{0 1 2 3} 0) ; 0
+(#{0 1 2 3} 1) ; 1
+(#{0 1 2 3} 2) ; 2
+(#{0 1 2 3} 3) ; 3
+(#{0 1 2 3} 4) ; nil
+(#{0 1 2 3} 5) ; nil
+
+(filter #{0 1 2 3} #{2 3 4 5})       ;  (3 2)
+(set (filter #{0 1 2 3} #{2 3 4 5})) ; #{3 2}
+
+(defn intersect-me [s1 s2]
+  (set (filter s1 s2)))
+
+;; (defn intersect-me [s1 s2]
+;;   (reduce #(if (contains? s2 %2) (conj %1 %2) %1) #{} s1))
+
+(= (intersect-me #{0 1 2 3} #{2 3 4 5})            #{2 3})      ; true
+(= (intersect-me #{0 1 2} #{3 4 5})                #{})         ; true
+(= (intersect-me #{:a :b :c :d} #{:c :e :a :f :d}) #{:a :c :d}) ; true
+
 ;; 082 - Word Chains (hard)
 ;; 083 - A HalfTruth (easy)
+
+(defn half-truth [& rest]
+  (and (not-every? true? rest) (not-every? false? rest)))
+
+(= false (half-truth false false))          ; true
+(= true  (half-truth true false))           ; true
+(= false (half-truth true))                 ; true
+(= true  (half-truth false true false))     ; true
+(= false (half-truth true true true))       ; true
+(= true  (half-truth true true true false)) ; true
+
 ;; 084 - Transitive Closure (hard)
 ;; 085 - Power Set (medium)
 ;; 086 - Happy numbers (medium)
 ;; 087 - Create an Equation
 ;; 088 - Symmetric Difference (easy)
+
+(defn symmetric-difference [s1 s2]
+  (clojure.set/union (clojure.set/difference s1 s2)
+                     (clojure.set/difference s2 s1)))
+
+;; (defn symmetric-difference [s1 s2]
+;;   (into (set (remove s1 s2)) (remove s2 s1)))
+
+(= (symmetric-difference #{1 2 3 4 5 6} #{1 3 5 7})     #{2 4 6 7})     ; true
+(= (symmetric-difference #{:a :b :c} #{})               #{:a :b :c})    ; true
+(= (symmetric-difference #{} #{4 5 6})                  #{4 5 6})       ; true
+(= (symmetric-difference #{[1 2] [2 3]} #{[2 3] [3 4]}) #{[1 2] [3 4]}) ; true
+
 ;; 089 - Graph Tour (hard)
 ;; 090 - Cartesian Product (easy)
+
+(defn cartesian-product [c1 c2]
+  (set (for [c1 c1 c2 c2]
+         [c1 c2])))
+
+(= (cartesian-product #{"ace" "king" "queen"} #{"♠" "♥" "♦" "♣"})
+   #{["ace"   "♠"] ["ace"   "♥"] ["ace"   "♦"] ["ace"   "♣"]
+     ["king"  "♠"] ["king"  "♥"] ["king"  "♦"] ["king"  "♣"]
+     ["queen" "♠"] ["queen" "♥"] ["queen" "♦"] ["queen" "♣"]})                  ; true
+(= (cartesian-product #{1 2 3} #{4 5}) #{[1 4] [2 4] [3 4] [1 5] [2 5] [3 5]})  ; true
+(= 300 (count (cartesian-product (into #{} (range 10)) (into #{} (range 30))))) ; true
+
 ;; 091 - Graph Connectivity (hard)
 ;; 092 - Read Roman numerals (hard)
 ;; 093 - Partially Flatten a Sequence (medium)
 ;; 094 - Game of Life (hard)
 ;; 095 - To Tree, or not to Tree (easy)
+
+(defn tree? [tree]
+  (or (nil? tree)
+      (and (sequential? tree)
+           (= 3 (count tree))
+           (tree? (nth tree 1))
+           (tree? (nth tree 2)))))
+
+(= (tree? '(:a nil nil))                           true)  ; true
+(= (tree? '(:a (:b nil nil) nil))                  true)  ; true
+(= (tree? '(:a (:b nil nil)))                      false) ; true
+(= (tree? [1 nil [2 [3 nil nil] [4 nil nil]]])     true)  ; true
+(= (tree? [1 [2 nil nil] [3 nil nil] [4 nil nil]]) false) ; true
+(= (tree? [1 [2 [3 [4 nil nil] nil] nil] nil])     true)  ; true
+(= (tree? [1 [2 [3 [4 false nil] nil] nil] nil])   false) ; true
+(= (tree? '(:a nil ()))                            false) ; true
+
 ;; 096 - Beauty is Symmetry (easy)
+
+(defn symmetric-trees? [[val1 left1 right1] [val2 left2 right2]]
+  (and (= val1 val2)
+       (or (and (nil? left1) (nil? right2))
+           (symmetric-trees? left1 right2))
+       (or (and (nil? right1) (nil? left2))
+           (symmetric-trees? right1 left2))))
+
+(symmetric-trees?
+ '(:b nil nil)
+ '(:c nil nil))
+; false
+
+(symmetric-trees?
+ '(:b nil nil)
+ '(nil))
+; false
+
+(symmetric-trees?
+ '(:b nil nil)
+ '(:b nil nil))
+; true
+
+(symmetric-trees?
+ [2 nil [3 [4 [5 nil nil] [6 nil nil]] nil]]
+ [2 [3 nil [4 [6 nil nil] [5 nil nil]]] nil])
+; true
+
+(symmetric-trees?
+ [2 nil [3 [4 [5 nil nil] [6 nil nil]] nil]]
+ [2 [3 nil [4 [5 nil nil] [6 nil nil]]] nil])
+; false
+
+(symmetric-trees?
+ [2 nil [3 [4 [5 nil nil] [6 nil nil]] nil]]
+ [2 [3 nil [4 [6 nil nil] nil]] nil])
+; false
+
+(defn beauty-is-symmetry [[_val left right]]
+  (letfn [(symmetric-trees? [[val1 left1 right1] [val2 left2 right2]]
+            (and (= val1 val2)
+                 (or (and (nil? left1) (nil? right2))
+                     (symmetric-trees? left1 right2))
+                 (or (and (nil? right1) (nil? left2))
+                     (symmetric-trees? right1 left2))))])
+  (symmetric-trees? left right))
+
+(= (beauty-is-symmetry '(:a (:b nil nil) (:b nil nil)))                                                              true)  ; true
+(= (beauty-is-symmetry '(:a (:b nil nil) nil))                                                                       false) ; true
+(= (beauty-is-symmetry '(:a (:b nil nil) (:c nil nil)))                                                              false) ; true
+(= (beauty-is-symmetry [1 [2 nil [3 [4 [5 nil nil] [6 nil nil]] nil]] [2 [3 nil [4 [6 nil nil] [5 nil nil]]] nil]])  true)  ; true
+(= (beauty-is-symmetry [1 [2 nil [3 [4 [5 nil nil] [6 nil nil]] nil]] [2 [3 nil [4 [5 nil nil] [6 nil nil]]] nil]])  false) ; true
+(= (beauty-is-symmetry [1 [2 nil [3 [4 [5 nil nil] [6 nil nil]] nil]] [2 [3 nil [4 [6 nil nil] nil]] nil]])          false) ; true
+
 ;; 097 - Pascal's Triangle (easy)
+
+(defn pascal-triangle
+  ([n] (pascal-triangle n [1]))
+  ([n acc]
+   (if (= n 1)
+     acc
+     (pascal-triangle (dec n)
+                      (conj (vec (conj (map (partial apply +) (partition 2 1 acc)) 1)) 1)))))
+
+(= (pascal-triangle 1) [1]) ; true
+(= (map pascal-triangle (range 1 6))
+   [[1]
+    [1 1]
+    [1 2 1]
+    [1 3 3 1]
+    [1 4 6 4 1]]) ; true
+(= (pascal-triangle 11) [1 10 45 120 210 252 210 120 45 10 1]) ; true
+(= (pascal-triangle 11) [1 10 45 120 210 252 210 120 45 10 1]) ; true
+
 ;; 098 - Equivalence Classes (medium)
 ;; 099 - Product Digits (easy)
 ;; 100 - Least Common Multiple (easy)
