@@ -3,7 +3,7 @@
             [clojure.set]
             [clojure.string]))
 
-;; levels of difficulty: elementary -> easy -> medium -> hard
+;; levels of difficulty: elementary (32) -> easy (48) -> medium (47) -> hard (18)
 
 ;; 001 - Nothing but the Truth (elementary)
 
@@ -497,14 +497,14 @@
 
 ;; 069 - Merge with a Function (medium)
 ;; 070 - Word Sorting (medium)
-;; 071 - Rearranging Code: > (elementary)
+;; 071 - Rearranging Code: -> (elementary)
 
 (= (count (sort (rest (reverse [2 5 4 1 3 6]))))
    (-> [2 5 4 1 3 6] reverse rest sort count)
    5)
 ; true
 
-;; 072 - Rearranging Code: >> (elementary)
+;; 072 - Rearranging Code: ->> (elementary)
 
 (= (reduce + (map inc (take 3 (drop 2 [2 5 4 1 3 6]))))
    (->> [2 5 4 1 3 6] (drop 2) (take 3) (map inc) (reduce +))
@@ -946,6 +946,62 @@ Class         ; java.lang.Class
 ;; 148 - The Big Divide (medium)
 ;; 150 - Palindromic Numbers (medium)
 ;; 153 - Pairwise Disjoint Sets (easy)
+
+;; (let [set-of-sets #{#{\U} #{\s} #{\e \R \E} #{\P \L} #{\.}}]
+;;   (for [s1 set-of-sets
+;;         s2 set-of-sets
+;;         :when (not= s1 s2)]
+;;     (clojure.set/intersection s1 s2)))
+; (#{} #{} #{} #{} #{} #{} #{} #{} #{} #{} #{} #{} #{} #{} #{} #{} #{} #{} #{} #{})
+
+(defn pairwise-disjoint-sets [set-of-sets]
+  (let [xs (for [s1 set-of-sets
+                 s2 set-of-sets
+                 :when (not= s1 s2)]
+             (clojure.set/intersection s1 s2))]
+    (every? empty? xs)))
+
+(= (pairwise-disjoint-sets #{#{\U} #{\s} #{\e \R \E} #{\P \L} #{\.}}) true) ; true
+(= (pairwise-disjoint-sets  #{#{:a :b :c :d :e}                             ; true
+                              #{:a :b :c :d}
+                              #{:a :b :c}
+                              #{:a :b}
+                              #{:a}})
+   false)
+(= (pairwise-disjoint-sets    #{#{[1 2 3] [4 5]}                             ; true
+                                #{[1 2] [3 4 5]}
+                                #{[1] [2] 3 4 5}
+                                #{1 2 [3 4] [5]}})
+   true)
+(= (pairwise-disjoint-sets     #{#{'a 'b}  ; true
+                                 #{'c 'd 'e}
+                                 #{'f 'g 'h 'i}
+                                 #{''a ''c ''f}})
+   true)
+(= (pairwise-disjoint-sets      #{#{'(:x :y :z) '(:x :y) '(:z) '()}          ; true
+                                  #{#{:x :y :z} #{:x :y} #{:z} #{}}
+                                  #{'[:x :y :z] [:x :y] [:z] [] {}}})
+   false)
+#_{:clj-kondo/ignore [:single-operand-comparison]}
+(= (pairwise-disjoint-sets       #{#{(= "true") false}                       ; true
+                                   #{:yes :no}
+                                   #{(class 1) 0}
+                                   #{(symbol "true") 'false}
+                                   #{(keyword "yes") ::no}
+                                   #{(class '1) (int \0)}})
+   false)
+(= (pairwise-disjoint-sets        (set [(set [distinct?])                    ; true
+                                        (set [#(-> %) #(-> %)])
+                                        (set [#(-> %) #(-> %) #(-> %)])
+                                        (set [#(-> %) #(-> %) #(-> %)])]))
+   true)
+#_{:clj-kondo/ignore [:redundant-do]}
+(= (pairwise-disjoint-sets         #{#{(#(-> *)) + (quote mapcat) #_nil}     ; true
+                                     #{'+ '* mapcat (comment mapcat)}
+                                     #{(do) set contains? nil?}
+                                     #{#_empty?}})
+   false)
+
 ;; 156 - Map Defaults (elementary)
 
 (zipmap [:a :b :c] (repeat 0)) ; {:a 0, :b 0, :c 0}
@@ -955,6 +1011,14 @@ Class         ; java.lang.Class
 (= (#(zipmap %2 (repeat %1)) [:a :b] [:foo :bar]) {:foo [:a :b] :bar [:a :b]}) ; true
 
 ;; 157 - Indexing Sequences (easy)
+
+(defn indexing-seq [c]
+  (keep-indexed (fn [i e] [e i]) c))
+
+(= (indexing-seq [:a :b :c]) [[:a 0] [:b 1] [:c 2]])                 ; true
+(= (indexing-seq [0 1 3]) '((0 0) (1 1) (3 2)))                      ; true
+(= (indexing-seq [[:foo] {:bar :baz}]) [[[:foo] 0] [{:bar :baz} 1]]) ; true
+
 ;; 158 - Decurry (medium)
 ;; 161 - Subset and Superset (elementary)
 
@@ -976,8 +1040,27 @@ Class         ; java.lang.Class
 (= 1 (if 1 1 0))         ; true
 
 ;; 166 - Comparisons (easy)
+
+(defn compare-me [less-than-op i1 i2]
+  (cond
+    (less-than-op i1 i2) :lt
+    (less-than-op i2 i1) :gt
+    :else :eq))
+
+(= :gt (compare-me < 5 1))                                             ; true
+(= :eq (compare-me (fn [x y] (< (count x) (count y))) "pear" "plum"))  ; true
+(= :lt (compare-me (fn [x y] (< (mod x 5) (mod y 5))) 21 3))           ; true
+(= :gt (compare-me > 0 2))                                             ; true
+
 ;; 168 - Infinite Matrix (medium)
 ;; 171 - Intervals (medium)
 ;; 173 - Intro to Destructuring 2 (easy)
+
+;; __ = op a
+(= 3                                           ; true
+   (let [[op a] [+ (range 3)]] (apply op a))
+   (let [[[op a] b] [[+ 1] 2]] (op a b))
+   (let [[op a] [inc 2]]       (op a)))
+
 ;; 177 - Balancing Brackets (medium)
 ;; 195 - Parentheses... Again (medium)
