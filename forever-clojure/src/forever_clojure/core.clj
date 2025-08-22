@@ -913,19 +913,36 @@ Class         ; java.lang.Class
 
 (defn trees-into-tables [tree]
   (into {}
-   (for [[k  v]  tree
-         [k' v'] v]
-    [[k k'] v'])))
- 
+        (for [[k  v]  tree
+              [k' v'] v]
+          [[k k'] v'])))
+
 (= (trees-into-tables '{a {p 1, q 2}, b {m 3, n 4}})                       ; true
    '{[a p] 1, [a q] 2, [b m] 3, [b n] 4})
 (= (trees-into-tables '{[1] {a b c d} [2] {q r s t u v w x}})              ; true
    '{[[1] a] b, [[1] c] d,
      [[2] q] r, [[2] s] t,
-     [[2] u] v, [[2] w] x})                                                
+     [[2] u] v, [[2] w] x})
 (= (trees-into-tables '{m {1 [a b c] 3 nil}}) '{[m 1] [a b c], [m 3] nil}) ; true
 
 ;; 147 - Pascal's Trapezoid (easy)
+
+(defn pascal-trapezoid [l]
+  (iterate
+   #(map +'
+         (concat [0] %)
+         (concat % [0]))
+   l))
+
+(concat [0] [2 3 2])                               ; (0 2 3 2)
+(concat [2 3 2] [0])                               ; (2 3 2 0)
+(map +' (concat [0] [2 3 2]) (concat [2 3 2] [0])) ; (2 5 5 2)
+
+(= (second   (pascal-trapezoid [2 3 2])) [2 5 5 2])                                  ; true
+(= (take 5   (pascal-trapezoid [1]))     [[1] [1 1] [1 2 1] [1 3 3 1] [1 4 6 4 1]])  ; true
+(= (take 2   (pascal-trapezoid [3 1 2])) [[3 1 2] [3 4 3 2]])                        ; true
+(= (take 100 (pascal-trapezoid [2 4 2])) (rest (take 101 (pascal-trapezoid [2 2])))) ; true
+
 ;; 148 - The Big Divide (medium)
 ;; 150 - Palindromic Numbers (medium)
 ;; 153 - Pairwise Disjoint Sets (easy)
