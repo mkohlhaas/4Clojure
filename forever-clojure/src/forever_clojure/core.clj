@@ -388,12 +388,55 @@
 (= (factorial-fun 8) 40320) ; true
 
 ;; 043 - Reverse Interleave (medium)
+
+;; (partition 2 [1 2 3 4 5 6]) ; ((1 2) (3 4) (5 6))
+;; (apply map list '((1 2) (3 4) (5 6))) ; ((1 3 5) (2 4 6))
+
+;; (partition 3 (range 9)) ; ((0 1 2) (3 4 5) (6 7 8))
+;; (apply map list '((0 1 2) (3 4 5) (6 7 8))) ; ((0 3 6) (1 4 7) (2 5 8))
+
+;; (partition 5 (range 10)) ; ((0 1 2 3 4) (5 6 7 8 9))
+;; (apply map list '((0 1 2 3 4) (5 6 7 8 9))) ; ((0 5) (1 6) (2 7) (3 8) (4 9))
+
+(defn reverse-interleave [coll n]
+  (apply map list (partition n coll)))
+
+(= (reverse-interleave [1 2 3 4 5 6] 2) '((1 3 5) (2 4 6)))            ; true
+(= (reverse-interleave (range 9) 3) '((0 3 6) (1 4 7) (2 5 8)))        ; true
+(= (reverse-interleave (range 10) 5) '((0 5) (1 6) (2 7) (3 8) (4 9))) ; true
+
 ;; 044 - Rotate Sequence (medium)
+
+(defn rotate-seq [n coll]
+  (let [n (mod n (count coll))]
+    (concat
+     (drop n coll)
+     (take n coll))))
+
+(= (rotate-seq  2 [1 2 3 4 5]) '(3 4 5 1 2)) ; true
+(= (rotate-seq -2 [1 2 3 4 5]) '(4 5 1 2 3)) ; true
+(= (rotate-seq  6 [1 2 3 4 5]) '(2 3 4 5 1)) ; true
+(= (rotate-seq  1 '(:a :b :c)) '(:b :c :a))  ; true
+(= (rotate-seq -4 '(:a :b :c)) '(:c :a :b))  ; true
+
 ;; 045 - Intro to Iterate (easy)
 
 (= '(1 4 7 10 13) (take 5 (iterate #(+ 3 %) 1))) ; true
 
 ;; 046 - Flipping out (medium)
+
+;; compare to PureScript
+;; https://github.com/purescript/purescript-prelude/blob/2a51e602c067f1e2f9387600307544b97b02a239/src/Data/Function.purs#L28-L28
+
+(defn flip [op]
+  (fn [& args]
+    (apply op (reverse args))))
+
+(= 3       ((flip nth) 2 [1 2 3 4 5]))  ; true
+(= true    ((flip >) 7 8))              ; true
+(= 4       ((flip quot) 2 8))           ; true
+(= [1 2 3] ((flip take) [1 2 3 4 5] 3)) ; true
+
 ;; 047 - Contain Yourself (easy)
 
 (contains? #{4 5 6}     4)  ; true
@@ -416,18 +459,55 @@
 (= (split-a-sequence 2 [[1 2] [3 4] [5 6]]) [[[1 2] [3 4]] [[5 6]]]) ; true
 
 ;; 050 - Split by Type (medium)
+
+(defn split-by-type [coll]
+  (vals (group-by type coll)))
+
+(= (set (split-by-type [1 :a 2 :b 3 :c])) #{[1 2 3] [:a :b :c]})                 ; true
+(= (set (split-by-type [:a "foo"  "bar" :b])) #{[:a :b] ["foo" "bar"]})          ; true
+(= (set (split-by-type [[1 2] :a [3 4] 5 6 :b])) #{[[1 2] [3 4]] [:a :b] [5 6]}) ; true
+
 ;; 051 - Advanced Destructuring (easy)
 
 (= [1 2 [3 4 5] [1 2 3 4 5]] (let [[a b & c :as d] [1 2 3 4 5]] [a b c d])) ; true
 
 ;; 052 - Intro to Destructuring (elementary)
 
-(= [2 4] (let [[_a _b c _d e _f _g] (range)] [c e])) ; true
+(= [2 4] (let [[a b c d e f g] (range)] [c e])) ; true
 
 ;; 053 - Longest Increasing SubSeq (hard)
 ;; 054 - Partition a Sequence (medium)
+
+(defn partition-me [n coll]
+  (let [p (take n coll)]
+    (when (= (count p) n)
+      (cons p (partition-me n (drop n coll))))))
+
+(= (partition-me 3 (range 9)) '((0 1 2) (3 4 5) (6 7 8))) ; true
+(= (partition-me 3 (range 8)) '((0 1 2) (3 4 5)))         ; true
+(= (partition-me 2 (range 8)) '((0 1) (2 3) (4 5) (6 7))) ; true
+
 ;; 055 - Count Occurences (medium)
+
+(defn count-occurences [coll]
+  (->> coll
+       (group-by identity)
+       ((flip update-vals) count)))
+
+(= (count-occurences [1 1 2 3 2 1 1]) {1 4, 2 2, 3 1})         ; true
+(= (count-occurences [:b :a :b :a :b]) {:a 2, :b 3})           ; true
+(= (count-occurences '([1 2] [1 3] [1 3])) {[1 2] 1, [1 3] 2}) ; true
+
 ;; 056 - Find Distinct Items (medium)
+
+(defn find-distinct-items [coll]
+  (reduce #(if (contains? (set %1) %2) %1 (conj %1 %2)) [] coll))
+
+(= (find-distinct-items [1 2 1 3 1 2 4]) [1 2 3 4])                       ; true
+(= (find-distinct-items [:a :a :b :b :c :c]) [:a :b :c])                  ; true
+(= (find-distinct-items '([2 4] [1 2] [1 3] [1 3])) '([2 4] [1 2] [1 3])) ; true
+(= (find-distinct-items (range 50)) (range 50))                           ; true
+
 ;; 057 - Simple Recursion (elementary)
 
 (= '(5 4 3 2 1) ((fn foo [x] (when (> x 0) (conj (foo (dec x)) x))) 5)) ; true
