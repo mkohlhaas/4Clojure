@@ -685,6 +685,14 @@
 
 ;; 098 - Equivalence Classes (medium)
 ;; 099 - Product Digits (easy)
+
+(defn product-digits [n1 n2]
+  (map #(Character/digit % 10) (str (* n1 n2))))
+
+(= (product-digits  1 1) [1])            ; true
+(= (product-digits 99 9) [8 9 1])        ; true
+(= (product-digits  999 99) [9 8 9 0 1]) ; true
+
 ;; 100 - Least Common Multiple (easy)
 ;; 101 - Levenshtein Distance (hard)
 ;; 102 - intoCamelCase (medium)
@@ -693,6 +701,15 @@
 ;; 105 - Identify keys and values (medium)
 ;; 106 - Number Maze (hard)
 ;; 107 - Simple closures (easy)
+
+(defn pow-int [n]
+  (fn [exp]
+    (apply * (repeat n exp))))
+
+(= 256 ((pow-int 2) 16), ((pow-int 8) 2))           ; true
+(= [1 8 27 64] (map (pow-int 3) [1 2 3 4]))         ; true
+(= [1 2 4 8 16] (map #((pow-int %) 2) [0 1 2 3 4])) ; true
+
 ;; 108 - Lazy Searching (medium)
 ;; 110 - Sequence of pronunciations (medium)
 ;; 111 - Crossword puzzle (hard)
@@ -702,15 +719,139 @@
 ;; 116 - Prime Sandwich (medium)
 ;; 117 - For Science! (hard)
 ;; 118 - Reimplement Map (easy)
+
+(defn map-me [f [head & rest]]
+  (when head
+    (cons (f head) (lazy-seq (map-me f rest)))))
+
+(map-me inc (range)) ; (1 2 3 4 5 6 7 8 9 10 11 …)
+
+(= [3 4 5 6 7]     (map-me inc [2 3 4 5 6]))         ; true
+(= (repeat 10 nil) (map-me (fn [_] nil) (range 10))) ; true
+(= [1000000 1000001]
+   (->> (map-me inc (range))
+        (drop (dec 1000000))
+        (take 2))) ; true
+(= [1000000 1000001]
+   (->> (map-me inc (range))
+        (drop (dec 1000000))
+        (take 2))) ; true
+
 ;; 119 - Win at TicTacToe (hard)
 ;; 120 - Sum of square of digits (easy)
+
+;; (defn char-to-int [d]
+;;   (- (int d) 48))
+
+;; (defn square [n]
+;;   (* n n))
+
+;; (map char-to-int [\0 \1 \2 \3 \4 \5 \6 \7 \8 \9]) ; (0 1 2 3 4 5 6 7 8 9)
+
+;; (map char-to-int (str 12345))                        ; (1 2 3 4 5)
+;; (map square (map char-to-int (str 12345)))           ; (1 4 9 16 25)
+;; (apply + (map square (map char-to-int (str 12345)))) ; 55
+;; (< 12345 (apply + (map square (map char-to-int (str 12345))))) ; false
+;; (< 10 (apply + (map square (map char-to-int (str 10))))) ; false
+;; (< 15 (apply + (map square (map char-to-int (str 15))))) ; true
+
+(defn sum-of-square-of-digits [coll]
+  (letfn [(chars-to-ints [coll]     (map #(- (int %) 48) coll))           ; e.g. (1 2 3 4 5)
+          (squares [coll]           (map #(* % %) (chars-to-ints coll)))  ; e.g. (1 4 9 16 25)
+          (sum-of-squares [coll]    (apply + (squares coll)))             ; e.g. 55
+          (small-sum-of-squares [n] (< n (sum-of-squares (str n))))]
+    (count (filter small-sum-of-squares coll))))
+
+(= 8  (sum-of-square-of-digits (range 10)))   ; true
+(= 19 (sum-of-square-of-digits (range 30)))   ; true
+(= 50 (sum-of-square-of-digits (range 100)))  ; true
+(= 50 (sum-of-square-of-digits (range 1000))) ; true
+
 ;; 121 - Universal Computation Engine (medium)
 ;; 122 - Read a binary number (easy)
+
+;; (def powers-of-two
+;;   (iterate #(* 2 %) 1))
+
+;; (defn binary-to-digit [n]
+;;   (if (= n \0)
+;;     0
+;;     1))
+
+;; (map binary-to-digit "101010")                               ; (1 0 1 0 1 0)
+;; (map vector (reverse '(1 0 1 0 1 0)) powers-of-two)          ; ([0 1] [1 2] [0 4] [1 8] [0 16] [1 32])
+;; (map #(apply * %) '([0 1] [1 2] [0 4] [1 8] [0 16] [1 32]))  ; (0 2 0 8 0 32)
+;; (apply + '(0 2 0 8 0 32)) ; 42
+
+;; (defn read-binary-number [str]
+;;   (let [powers-of-two (iterate #(* 2 %) 1)]
+;;     (letfn [(char-to-bit [c] ({\0 0, \1 1} c))
+;;             (list-of-digits [str] (map char-to-bit str))                                            ; e.g. (1 0 1 0 1 0)
+;;             (list-of-digits-pairs [str] (map vector (reverse (list-of-digits str)) powers-of-two))  ; e.g. ([0 1] [1 2] [0 4] [1 8] [0 16] [1 32])
+;;             (list-of-values [str] (map #(apply * %) (list-of-digits-pairs str)))]                   ; e.g. (0 2 0 8 0 32)
+;;       (apply + (list-of-values str)))))
+
+;; (defn read-binary-number [str]
+;;   (let [char->bit (fn [c] ({\0 0 \1 1} c))
+;;         step (fn [acc c]
+;;                (+ (* 2 acc)
+;;                   (char->bit c)))]
+;;     (reduce step 0 str)))
+
+(defn read-binary-number [s]
+  (->> s
+       (str "2r")
+       (read-string)))
+
+(str "2r" "1111111111111111")               ; "2r1111111111111111"
+(read-string (str "2r" "1111111111111111")) ; 65535
+
+(= 0     (read-binary-number "0"))                ; true
+(= 7     (read-binary-number "111"))              ; true
+(= 8     (read-binary-number "1000"))             ; true
+(= 9     (read-binary-number "1001"))             ; true
+(= 255   (read-binary-number "11111111"))         ; true
+(= 1365  (read-binary-number "10101010101"))      ; true
+(= 65535 (read-binary-number "1111111111111111")) ; true
+
 ;; 124 - Analyze Reversi (hard)
 ;; 125 - Gus' Quinundrum (hard)
 ;; 126 - Through the Looking Class (easy)
+
+Class         ; java.lang.Class
+(class Class) ; java.lang.Class
+
+(let [x Class]
+  (and (= (class x) x) x))
+
 ;; 127 - Love Triangle (hard)
 ;; 128 - Recognize Playing Cards (easy)
+
+;; {\2 0, \3 1, \4 2, \5 3, \6 4, \7 5, \8 6, \9 7, \T 8, \J 9, \Q 10, \K 11, \A 12}
+;; {\S :spade, \H :heart, \D :diamond, \C :club}
+
+;; (def card-map
+;;   {\2 0, \3 1, \4 2, \5 3, \6 4, \7 5, \8 6, \9 7, \T 8, \J 9, \Q 10, \K 11, \A 12, \S :spade, \H :heart, \D :diamond, \C :club})
+
+;; (map card-map "DQ") ; (:diamond 10)
+
+;; (first "DQ") ; \D
+;; (second "DQ") ; \Q
+
+(defn read-card [[suit rank]]
+  (let [suit-map {\S :spade, \H :heart, \D :diamond, \C :club}
+        rank-map {\2 0, \3 1, \4 2, \5 3, \6 4, \7 5, \8 6, \9 7, \T 8, \J 9, \Q 10, \K 11, \A 12}]
+    {:suit (suit-map suit), :rank (rank-map rank)}))
+
+;; (read-card "DQ") ; {:suit :diamond, :rank 10}
+
+(= {:suit :diamond :rank 10} (read-card  "DQ")) ; true
+(= {:suit :heart :rank 3}    (read-card  "H5")) ; true
+(= {:suit :club :rank 12}    (read-card  "CA")) ; true
+(= (range 13) (map (comp :rank read-card str)
+                   '[S2 S3 S4 S5 S6 S7
+                     S8 S9 ST SJ SQ SK SA]))    ; true
+
 ;; 131 - Sum Some Set Subsets (medium)
 ;; 132 - Intervals (medium)
 ;; 134 - A nil key (elementary)
@@ -725,10 +866,31 @@
 (false? (#(nil? (%1 %2 false)) :c {:a nil :b 2})) ; true
 
 ;; 135 - Infix Calculator (easy)
+
+(defn infix-calc [left op right & rest]
+  (let [result (op left right)]
+    (if rest
+      (apply infix-calc (cons result rest))
+      result)))
+
+(= 7  (infix-calc 2 + 5))                           ; true
+(= 42 (infix-calc 38 + 48 - 2 / 2))                 ; true
+(= 8  (infix-calc 10 / 2 - 1 * 2))                  ; true
+(= 72 (infix-calc 20 / 2 + 2 + 4 + 8 - 6 - 10 * 9)) ; true
+
 ;; 137 - Digits and bases (medium)
 ;; 140 - Veitch, Please! (hard)
 ;; 141 - Tricky card games (medium)
 ;; 143 - dot product (easy)
+
+(defn dot-product [v1 v2]
+  (apply + (map * v1 v2)))
+
+(= 0   (dot-product [0 1 0] [1 0 0]))    ; true
+(= 3   (dot-product [1 1 1] [1 1 1]))    ; true
+(= 32  (dot-product [1 2 3] [4 5 6]))    ; true
+(= 256 (dot-product [2 5 6] [100 10 1])) ; true
+
 ;; 144 - Oscilrate (medium)
 ;; 145 - For the win (elementary)
 
@@ -748,6 +910,21 @@
 ; true
 
 ;; 146 - Trees into tables (easy)
+
+(defn trees-into-tables [tree]
+  (into {}
+   (for [[k  v]  tree
+         [k' v'] v]
+    [[k k'] v'])))
+ 
+(= (trees-into-tables '{a {p 1, q 2}, b {m 3, n 4}})                       ; true
+   '{[a p] 1, [a q] 2, [b m] 3, [b n] 4})
+(= (trees-into-tables '{[1] {a b c d} [2] {q r s t u v w x}})              ; true
+   '{[[1] a] b, [[1] c] d,
+     [[2] q] r, [[2] s] t,
+     [[2] u] v, [[2] w] x})                                                
+(= (trees-into-tables '{m {1 [a b c] 3 nil}}) '{[m 1] [a b c], [m 3] nil}) ; true
+
 ;; 147 - Pascal's Trapezoid (easy)
 ;; 148 - The Big Divide (medium)
 ;; 150 - Palindromic Numbers (medium)
