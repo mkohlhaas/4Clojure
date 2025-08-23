@@ -5,17 +5,23 @@
 
 ;; levels of difficulty: elementary (32) -> easy (48) -> medium (47) -> hard (18)
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 001 - Nothing but the Truth (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= true true)) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 002 - Simple Math (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (- 10 (* 2 3)) 4)) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 003 - Strings (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (javadoc ""))
@@ -23,12 +29,16 @@
 (comment
   (= "HELLO WORLD" (.toUpperCase "hello world"))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 004 - Lists (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (list :a :b :c) '(:a :b :c))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 005 - conj on lists (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= '(1 2 3 4) (conj '(2 3 4) 1))) ; true
@@ -36,20 +46,26 @@
 (comment
   (= '(1 2 3 4) (conj '(3 4) 2 1))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 006 - Vectors (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= [:a :b :c] (list :a :b :c) (vec '(:a :b :c)) (vector :a :b :c))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 007 - conj on vectors (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= [1 2 3 4] (conj [1 2 3] 4))) ; true
 
 (comment
-  w (= [1 2 3 4] (conj [1 2] 3 4))) ; true
+  (= [1 2 3 4] (conj [1 2] 3 4))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;
 ;; 008 - Sets (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= #{:a :b :c :d} (set '(:a :a :b :c :c :c :c :d :d)))) ; true
@@ -57,12 +73,16 @@
 (comment
   (= #{:a :b :c :d} (clojure.set/union #{:a :b :c} #{:b :c :d}))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 009 - conj on sets (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= #{1 2 3 4} (conj #{1 4 3} 2))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;
 ;; 010 - Maps (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= 20 ((hash-map :a 10, :b 20, :c 30) :b))) ; true
@@ -70,12 +90,16 @@
 (comment
   (= 20 (:b {:a 10, :b 20, :c 30}))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 011 - conj on maps (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= {:a 1, :b 2, :c 3} (conj {:a 1} {:b 2} [:c 3]))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 012 - Sequences (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= 3 (first '(3 2 1)))) ; true
@@ -86,13 +110,17 @@
 (comment
   (= 3 (last (list 1 2 3)))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;
 ;; 013 - rest (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (=  [20 30 40] (rest [10 20 30 40]))  ; true
   (= '(20 30 40) (rest [10 20 30 40]))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 014 - Functions (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= 8 ((fn add-five [x] (+ x 5)) 3)) ; true
@@ -100,7 +128,9 @@
   (= 8 (#(+ % 5) 3))                  ; true
   (= 8 ((partial + 5) 3)))            ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 015 - Double Down (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= ((fn double-down [n] (* 2 n)) 2) 4) ; true
@@ -108,24 +138,32 @@
   (= (#(* 2 %) 11) 22)                   ; true
   (= ((partial * 2) 7) 14))              ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 016 - Hello World (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= ((fn [name] (str "Hello, " name, "!")) "Dave") "Hello, Dave!")                    ; true
   (= (#(str "Hello, " % "!") "Jenn") "Hello, Jenn!")                                   ; true
   (= ((fn [name] (clojure.string/join name ["Hello, ", "!"])) "Rhea") "Hello, Rhea!")) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;
 ;; 017 - map (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= '(6 7 8) (map #(+ % 5) '(1 2 3)))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 018 - filter (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= '(6 7) (filter #(> % 5) '(3 4 5 6 7)))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 019 - Last Element (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (reduce (fn [_ n] n) nil [1 2 3 4 5]) 5)      ; true
@@ -135,7 +173,9 @@
   (= (reduce (fn [_ n] n) nil '(5 4 3)) 3)         ; true
   (= (reduce (fn [_ n] n) nil ["b" "c" "d"]) "d")) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 020 - Penultimate Element (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (#(first (last (partition 2 1 %))) (list 1 2 3 4 5)) 4)   ; true
@@ -147,7 +187,9 @@
   (= ((comp first (partial take-last 2)) ["a" "b" "c"]) "b")    ; true
   (= ((comp first (partial take-last 2)) [[1 2] [3 4]]) [1 2])) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 021 - Nth Element (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (#(first (drop %2 %1)) '(4 5 6 7) 2) 6)                ; true
@@ -155,7 +197,9 @@
   (= (#(first (drop %2 %1)) [1 2 3 4] 1) 2)                 ; true
   (= (#(first (drop %2 %1)) '([1 2] [3 4] [5 6]) 2) [5 6])) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 022 - Count a Sequence (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (#(reduce (fn [n _m] (inc n)) 0 %) '(1 2 3 3 1)) 5)         ; true
@@ -164,14 +208,18 @@
   (= (#(reduce (fn [n _m] (inc n)) 0 %) '(13)) 1)                ; true
   (= (#(reduce (fn [n _m] (inc n)) 0 %) '(:a :b :c)) 3))         ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 023 - Reverse a Sequence (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (#(reduce conj nil %) [1 2 3 4 5]) [5 4 3 2 1])                  ; true
   (= (#(reduce conj nil %) (sorted-set 5 7 2 7)) '(7 5 2))            ; true
   (= (#(reduce conj nil %) [[1 2] [3 4] [5 6]]) [[5 6] [3 4] [1 2]])) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 024 - Sum It All Up (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (#(apply + %) [1 2 3]) 6)           ; true
@@ -187,7 +235,9 @@
   (= (#(reduce + %) '(0 0 -1)) -1)       ; true
   (= (#(reduce + %) '(1 10 3)) 14))      ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 025 - Find the odd numbers (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (#(filter odd? %) #{1 2 3 4 5}) '(1 3 5))      ; true
@@ -202,7 +252,9 @@
   (= (#(reduce (fn [n1 n2] (if (odd? n2) (conj n1 n2) n1)) [] %)  [2 2 4 6])    '())         ; true
   (= (#(reduce (fn [n1 n2] (if (odd? n2) (conj n1 n2) n1)) [] %)  [1 1 1 3])    '(1 1 1 3))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 026 - Fibonacci Sequence (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn fib [n] (->> [1 1]
@@ -215,7 +267,9 @@
   (= (fib 6) '(1 1 2 3 5 8))        ; true
   (= (fib 8) '(1 1 2 3 5 8 13 21))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 027 - Palindrome Detector (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn palindrome? [coll] (= (reverse coll) (seq coll))))
@@ -227,14 +281,17 @@
   (true?  (palindrome?  '(1 1 3 3 1 1)))    ; true
   (false? (palindrome?  '(:a :b :c))))      ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 028 - Flatten a Sequence (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (defn flatten-me [coll]
-;;   (let [[fst & rest :as all] coll]
-;;     (cond
-;;       (empty? all)  (seq '())
-;;       (coll? fst)   (concat (flatten-me fst) (flatten-me rest))
-;;       :else         (conj (flatten-me rest) fst))))
+(comment
+  (defn flatten-me [coll]
+    (let [[fst & rest :as all] coll]
+      (cond
+        (empty? all)  (seq '())
+        (coll? fst)   (concat (flatten-me fst) (flatten-me rest))
+        :else         (conj (flatten-me rest) fst)))))
 
 (comment
   (defn flatten-me [c]
@@ -247,7 +304,9 @@
   (= (flatten-me ["a" ["b"] "c"])      '("a" "b" "c"))  ; true
   (= (flatten-me '((((:a)))))          '(:a)))          ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 029 - Get the Caps (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; instance method
 (comment
@@ -273,7 +332,9 @@
   (empty? (get-the-caps "nothing"))                 ; true
   (=      (get-the-caps "$#A(*&987Zf") "AZ"))       ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 030 - Compress a Sequence (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (apply str (dedupe "Leeeeeerrroyyy")) "Leroy")            ; true
@@ -302,7 +363,9 @@
   (= (dedupe-me [1 1 2 3 3 2 2 3]) '(1 2 3 2 3))                  ; true
   (= (dedupe-me [[1 2] [1 2] [3 4] [1 2]]) '([1 2] [3 4] [1 2]))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 031 - Pack a Sequence (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn pack-a-sequence [coll]
@@ -313,7 +376,9 @@
   (= (pack-a-sequence [:a :a :b :b :c]) '((:a :a) (:b :b) (:c)))      ; true
   (= (pack-a-sequence [[1 2] [1 2] [3 4]]) '(([1 2] [1 2]) ([3 4])))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 032 - Duplicate a Sequence (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn duplicate-a-sequence [coll]
@@ -325,7 +390,9 @@
   (= (duplicate-a-sequence [[1 2] [3 4]]) '([1 2] [1 2] [3 4] [3 4]))  ; true
   (= (duplicate-a-sequence [44 33]) [44 44 33 33]))                    ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 033 - Replicate a Sequence (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (apply mapcat vector (repeat 2 [1 2 3]))  ; (1 1 2 2 3 3)
@@ -345,7 +412,9 @@
   (= (replicate-a-sequence [[1 2] [3 4]] 2) '([1 2] [1 2] [3 4] [3 4]))  ; true
   (= (replicate-a-sequence [44 33] 2)       [44 44 33 33]))              ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 034 - Implement range (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (take (- 4 1) (iterate inc 1))    ; (1 2 3)
@@ -361,26 +430,34 @@
   (= (range-me -2 2) '(-2 -1 0 1))  ; true
   (= (range-me  5 8) '(5 6 7)))     ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 035 - Local bindings (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= 7 (let [x 5] (+ 2 x)))        ; true
   (= 7 (let [x 3, y 10] (- y x)))  ; true
   (= 7 (let [x 21 y 3] (/ x y))))  ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 036 - Let it Be (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= 10 (let [x 6, y 4] (+ x y)))  ; true
   (= 4 (let [y 1, z 3] (+ y z)))   ; true
   (= 1 (let [z 1] z)))             ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 037 - Regular Expressions (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= "ABC" (apply str (re-seq #"[A-Z]+" "bA1B3Ce ")))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 038 - Maximum value (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (reduce #(if (> %1 %2) %1 %2) '(1 8 3 4))) ; 8
@@ -394,7 +471,9 @@
   (= (maximum-value 30 20)    30)  ; true
   (= (maximum-value 45 67 11) 67)) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 039 - Interleave Two Seqs (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (mapcat vector [1 2 3] [:a :b :c]))
@@ -409,7 +488,9 @@
   (= (interleave-two-seqs [1 2 3 4] [5])       [1 5])             ; true
   (= (interleave-two-seqs [30 20] [25 15])     [30 25 20 15]))    ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 040 - Interpose a Seq (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (let [val 0
@@ -426,7 +507,9 @@
   (= (apply str (interpose-a-seq ", " ["one" "two" "three"])) "one, two, three")       ; true
   (= (interpose-a-seq :z [:a :b :c :d])                       [:a :z :b :z :c :z :d])) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 041 - Drop Every Nth Item (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (let [coll [1 2 3 4 5 6 7 8]
@@ -449,7 +532,9 @@
   (= (drop-every-nth-item [:a :b :c :d :e :f] 2) [:a :c :e])     ; true
   (= (drop-every-nth-item [1 2 3 4 5 6] 4)       [1 2 3 5 6]))   ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 042 - Factorial Fun (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (let [n 5]
@@ -466,7 +551,9 @@
   (= (factorial-fun 5) 120)    ; true
   (= (factorial-fun 8) 40320)) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 043 - Reverse Interleave (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (partition 2 [1 2 3 4 5 6])            ; ((1 2) (3 4) (5 6))
@@ -489,7 +576,9 @@
   (= (reverse-interleave (range 9) 3) '((0 3 6) (1 4 7) (2 5 8)))         ; true
   (= (reverse-interleave (range 10) 5) '((0 5) (1 6) (2 7) (3 8) (4 9)))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 044 - Rotate Sequence (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn rotate-seq [n coll]
@@ -505,12 +594,16 @@
   (= (rotate-seq  1 '(:a :b :c)) '(:b :c :a))   ; true
   (= (rotate-seq -4 '(:a :b :c)) '(:c :a :b)))  ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 045 - Intro to Iterate (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= '(1 4 7 10 13) (take 5 (iterate #(+ 3 %) 1)))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 046 - Flipping out (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; compare to PureScript
 ;; https://github.com/purescript/purescript-prelude/blob/2a51e602c067f1e2f9387600307544b97b02a239/src/Data/Function.purs#L28-L28
@@ -525,7 +618,9 @@
   (= 4       ((flip quot) 2 8))            ; true
   (= [1 2 3] ((flip take) [1 2 3 4 5] 3))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 047 - Contain Yourself (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (contains? #{4 5 6}     4)   ; true
@@ -533,13 +628,17 @@
   (contains? {4 :a 2 :b}  4)   ; true
   (not (contains? [1 2 4] 3))) ; true (in a vector it's an index!!!)
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 048 - Intro to some (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= 6 (some #{2 7 6} [5 6 7 8]))             ; true
   (= 6 (some #(when (even? %) %) [5 6 7 8]))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 049 - Split a sequence (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn split-a-sequence [n coll]
@@ -550,7 +649,9 @@
   (= (split-a-sequence 1 [:a :b :c :d])       [[:a] [:b :c :d]])        ; true
   (= (split-a-sequence 2 [[1 2] [3 4] [5 6]]) [[[1 2] [3 4]] [[5 6]]])) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 050 - Split by Type (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn split-by-type [coll]
@@ -561,18 +662,27 @@
   (= (set (split-by-type [:a "foo"  "bar" :b])) #{[:a :b] ["foo" "bar"]})           ; true
   (= (set (split-by-type [[1 2] :a [3 4] 5 6 :b])) #{[[1 2] [3 4]] [:a :b] [5 6]})) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 051 - Advanced Destructuring (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= [1 2 [3 4 5] [1 2 3 4 5]] (let [[a b & c :as d] [1 2 3 4 5]] [a b c d]))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 052 - Intro to Destructuring (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= [2 4] (let [[a b c d e f g] (range)] [c e]))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 053 - Longest Increasing SubSeq (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 054 - Partition a Sequence (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn partition-me [n coll]
@@ -585,7 +695,9 @@
   (= (partition-me 3 (range 8)) '((0 1 2) (3 4 5)))          ; true
   (= (partition-me 2 (range 8)) '((0 1) (2 3) (4 5) (6 7)))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 055 - Count Occurences (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn count-occurences [coll]
@@ -598,7 +710,9 @@
   (= (count-occurences [:b :a :b :a :b]) {:a 2, :b 3})            ; true
   (= (count-occurences '([1 2] [1 3] [1 3])) {[1 2] 1, [1 3] 2})) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 056 - Find Distinct Items (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn find-distinct-items [coll]
@@ -610,12 +724,16 @@
   (= (find-distinct-items '([2 4] [1 2] [1 3] [1 3])) '([2 4] [1 2] [1 3]))  ; true
   (= (find-distinct-items (range 50)) (range 50)))                           ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 057 - Simple Recursion (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= '(5 4 3 2 1) ((fn foo [x] (when (> x 0) (conj (foo (dec x)) x))) 5))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 058 - Function Composition (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn comp-me [& funcs]
@@ -633,7 +751,9 @@
   (= true    ((comp-me zero? #(mod % 8) +) 3 5 7 9))                             ; true
   (= "HELLO" ((comp-me #(.toUpperCase %) #(apply str %) take) 5 "hello world"))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 059 - Juxtaposition (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn juxt-me [& funcs]
@@ -650,7 +770,9 @@
   (= ["HELLO" 5] ((juxt-me #(.toUpperCase %) count) "hello"))          ; true
   (= [2 6 4]     ((juxt-me :a :c :b) {:a 2, :b 4, :c 6, :d 8 :e 10}))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 060 - Sequence Reductions (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn reductions-me
@@ -667,7 +789,9 @@
   (= (reductions-me conj [1] [2 3 4])   [[1] [1 2] [1 2 3] [1 2 3 4]])
   (= (last (reductions-me * 2 [3 4 5])) (reduce * 2 [3 4 5]) 120))
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 061 - Map Construction (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (into {} (map vector [:a :b :c] [1 2 3]))) ; {:a 1, :b 2, :c 3}
@@ -681,7 +805,9 @@
   (= (map-construction [1 2 3 4]   ["one" "two" "three"]) {1 "one", 2 "two", 3 "three"})  ; true
   (= (map-construction [:foo :bar] ["foo" "bar" "baz"])   {:foo "foo", :bar "bar"}))      ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 062 - Reimplement Iteration (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (take 5 (iterate #(* 2 %) 1))) ; (1 2 4 8 16)
@@ -695,7 +821,9 @@
   (= (take 10  (iterate-me inc 0))              (take 10 (range)))         ; true
   (= (take 9   (iterate-me #(inc (mod % 3)) 1)) (take 9 (cycle [1 2 3])))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 063 - Group a Sequence (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn group-a-sequence [f coll]
@@ -706,15 +834,22 @@
   (= (group-a-sequence #(apply / %) [[1 2] [2 4] [4 6] [3 6]]) {1/2 [[1 2] [2 4] [3 6]], 2/3 [[4 6]]})       ; true
   (= (group-a-sequence count [[1] [1 2] [3] [1 2 3] [2 3]])    {1 [[1] [3]], 2 [[1 2] [2 3]], 3 [[1 2 3]]})) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 064 - Intro to Reduce (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= 15 (reduce + [1 2 3 4 5]))  ; true
   (=  0 (reduce + []))           ; true
   (=  6 (reduce + 1 [2 3])))     ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 065 - Black Box Testing (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 066 - Greatest Common Divisor (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn gcd [a b]
@@ -728,8 +863,13 @@
   (= (gcd 5 7)       1)  ; true
   (= (gcd 1023 858) 33)) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 067 - Prime Numbers (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 068 - Recurring Theme (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= [7 6 5 4 3]
@@ -739,31 +879,67 @@
          (recur (dec x) (conj result (+ 2 x)))
          result))))
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 069 - Merge with a Function (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 070 - Word Sorting (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 071 - Rearranging Code: -> (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (count (sort (rest (reverse [2 5 4 1 3 6])))) ; true
      (-> [2 5 4 1 3 6] reverse rest sort count)
      5))
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 072 - Rearranging Code: ->> (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= (reduce + (map inc (take 3 (drop 2 [2 5 4 1 3 6]))))       ; true
      (->> [2 5 4 1 3 6] (drop 2) (take 3) (map inc) (reduce +))
      11))
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 073 - Analyze a TicTacToe Board (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 074 - Filter Perfect Squares (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 075 - Euler's Totient Function (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 076 - Intro to Trampoline (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 077 - Anagram Finder (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 078 - Reimplement Trampoline (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 079 - Triangle Minimal Path (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 080 - Perfect Numbers (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 081 - Set Intersection (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (#{0 1 2 3} 0)  ; 0
@@ -790,8 +966,13 @@
   (= (intersect-me #{0 1 2} #{3 4 5})                #{})          ; true
   (= (intersect-me #{:a :b :c :d} #{:c :e :a :f :d}) #{:a :c :d})) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 082 - Word Chains (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 083 - A HalfTruth (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn half-truth [& rest]
@@ -805,11 +986,25 @@
   (= false (half-truth true true true))        ; true
   (= true  (half-truth true true true false))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 084 - Transitive Closure (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 085 - Power Set (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 086 - Happy numbers (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 087 - Create an Equation
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 088 - Symmetric Difference (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn symmetric-difference [s1 s2]
@@ -826,8 +1021,13 @@
   (= (symmetric-difference #{} #{4 5 6})                  #{4 5 6})        ; true
   (= (symmetric-difference #{[1 2] [2 3]} #{[2 3] [3 4]}) #{[1 2] [3 4]})) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;
 ;; 089 - Graph Tour (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 090 - Cartesian Product (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn cartesian-product [c1 c2]
@@ -842,11 +1042,25 @@
   (= (cartesian-product #{1 2 3} #{4 5}) #{[1 4] [2 4] [3 4] [1 5] [2 5] [3 5]})   ; true
   (= 300 (count (cartesian-product (into #{} (range 10)) (into #{} (range 30)))))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 091 - Graph Connectivity (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 092 - Read Roman numerals (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 093 - Partially Flatten a Sequence (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 094 - Game of Life (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 095 - To Tree, or not to Tree (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn tree? [tree]
@@ -866,7 +1080,9 @@
   (= (tree? [1 [2 [3 [4 false nil] nil] nil] nil])   false)  ; true
   (= (tree? '(:a nil ()))                            false)) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 096 - Beauty is Symmetry (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn symmetric-trees? [[val1 left1 right1] [val2 left2 right2]]
@@ -919,7 +1135,9 @@
   (= (beauty-is-symmetry [1 [2 nil [3 [4 [5 nil nil] [6 nil nil]] nil]] [2 [3 nil [4 [5 nil nil] [6 nil nil]]] nil]])  false)  ; true
   (= (beauty-is-symmetry [1 [2 nil [3 [4 [5 nil nil] [6 nil nil]] nil]] [2 [3 nil [4 [6 nil nil] nil]] nil]])          false)) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 097 - Pascal's Triangle (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment)
 (defn pascal-triangle
@@ -943,8 +1161,13 @@
   (= (pascal-triangle 11) [1 10 45 120 210 252 210 120 45 10 1])  ; true
   (= (pascal-triangle 11) [1 10 45 120 210 252 210 120 45 10 1])) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 098 - Equivalence Classes (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 099 - Product Digits (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn product-digits [n1 n2]
@@ -955,14 +1178,37 @@
   (= (product-digits 99 9) [8 9 1])         ; true
   (= (product-digits  999 99) [9 8 9 0 1])) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 100 - Least Common Multiple (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 101 - Levenshtein Distance (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 102 - intoCamelCase (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 103 - Generating kcombinations (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 104 - Write Roman Numerals (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 105 - Identify keys and values (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 106 - Number Maze (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 107 - Simple closures (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn pow-int [n]
@@ -974,15 +1220,41 @@
   (= [1 8 27 64] (map (pow-int 3) [1 2 3 4]))          ; true
   (= [1 2 4 8 16] (map #((pow-int %) 2) [0 1 2 3 4]))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 108 - Lazy Searching (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 110 - Sequence of pronunciations (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 111 - Crossword puzzle (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 112 - Sequs Horribilis (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 114 - Global takewhile (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 115 - The Balance of N (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 116 - Prime Sandwich (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 117 - For Science! (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 118 - Reimplement Map (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn map-me [f [head & rest]]
@@ -1004,8 +1276,13 @@
           (drop (dec 1000000))
           (take 2))))
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 119 - Win at TicTacToe (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 120 - Sum of square of digits (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn char-to-int [d]
@@ -1040,8 +1317,13 @@
   (= 50 (sum-of-square-of-digits (range 100)))   ; true
   (= 50 (sum-of-square-of-digits (range 1000)))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 121 - Universal Computation Engine (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 122 - Read a binary number (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (def powers-of-two
@@ -1095,9 +1377,17 @@
   (= 1365  (read-binary-number "10101010101"))       ; true
   (= 65535 (read-binary-number "1111111111111111"))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 124 - Analyze Reversi (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 125 - Gus' Quinundrum (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 126 - Through the Looking Class (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   Class         ; java.lang.Class
@@ -1107,8 +1397,13 @@
   (let [x Class]
     (and (= (class x) x) x)))
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 127 - Love Triangle (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 128 - Recognize Playing Cards (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   {\2 0, \3 1, \4 2, \5 3, \6 4, \7 5, \8 6, \9 7, \T 8, \J 9, \Q 10, \K 11, \A 12}
@@ -1142,9 +1437,17 @@
                      '[S2 S3 S4 S5 S6 S7
                        S8 S9 ST SJ SQ SK SA])))
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 131 - Sum Some Set Subsets (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 132 - Intervals (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 134 - A nil key (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (:a {:a nil :b 2})        ; nil
@@ -1157,7 +1460,9 @@
   (false? (#(nil? (%1 %2 false)) :b {:a nil :b 2}))  ; true
   (false? (#(nil? (%1 %2 false)) :c {:a nil :b 2}))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 135 - Infix Calculator (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn infix-calc [left op right & rest]
@@ -1172,10 +1477,21 @@
   (= 8  (infix-calc 10 / 2 - 1 * 2))                   ; true
   (= 72 (infix-calc 20 / 2 + 2 + 4 + 8 - 6 - 10 * 9))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 137 - Digits and bases (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 140 - Veitch, Please! (hard)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 141 - Tricky card games (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 143 - dot product (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn dot-product [v1 v2]
@@ -1187,8 +1503,13 @@
   (= 32  (dot-product [1 2 3] [4 5 6]))     ; true
   (= 256 (dot-product [2 5 6] [100 10 1]))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 144 - Oscilrate (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 145 - For the win (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (= '(1 5 9 13 17 21 25 29 33 37) (for [x (range 40)           ; true
@@ -1205,7 +1526,9 @@
   (= '(1 5 9 13 17 21 25 29 33 37) (for [[x y] (partition 2 (range 20))] ; true
                                      (+ x y))))
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 146 - Trees into tables (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn trees-into-tables [tree]
@@ -1223,7 +1546,9 @@
        [[2] u] v, [[2] w] x})
   (= (trees-into-tables '{m {1 [a b c] 3 nil}}) '{[m 1] [a b c], [m 3] nil})) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 147 - Pascal's Trapezoid (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn pascal-trapezoid [l]
@@ -1244,9 +1569,17 @@
   (= (take 2   (pascal-trapezoid [3 1 2])) [[3 1 2] [3 4 3 2]])                         ; true
   (= (take 100 (pascal-trapezoid [2 4 2])) (rest (take 101 (pascal-trapezoid [2 2]))))) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 148 - The Big Divide (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 150 - Palindromic Numbers (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 153 - Pairwise Disjoint Sets (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (let [set-of-sets #{#{\U} #{\s} #{\e \R \E} #{\P \L} #{\.}}]
@@ -1306,7 +1639,9 @@
                                        #{#_empty?}})
      false))
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 156 - Map Defaults (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (zipmap [:a :b :c] (repeat 0))) ; {:a 0, :b 0, :c 0}
@@ -1316,7 +1651,9 @@
   (= (#(zipmap %2 (repeat %1)) "x" [1 2 3]) {1 "x" 2 "x" 3 "x"})                  ; true
   (= (#(zipmap %2 (repeat %1)) [:a :b] [:foo :bar]) {:foo [:a :b] :bar [:a :b]})) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 157 - Indexing Sequences (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn indexing-seq [c]
@@ -1327,8 +1664,13 @@
   (= (indexing-seq [0 1 3]) '((0 0) (1 1) (3 2)))                       ; true
   (= (indexing-seq [[:foo] {:bar :baz}]) [[[:foo] 0] [{:bar :baz} 1]])) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;
 ;; 158 - Decurry (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 161 - Subset and Superset (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (clojure.set/superset? #{2}   #{2})    ; true
@@ -1336,7 +1678,9 @@
   (clojure.set/superset? #{1 2} #{1 2})  ; true
   (clojure.set/subset?   #{1 2} #{1 2})) ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 162 - Logical falsity and truth (elementary)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; In Clojure, only `nil` and `false` represent the values of logical falsity in conditional tests - anything else is logical truth!!!
 
@@ -1349,7 +1693,9 @@
   (= 1 (if 0 1 0))          ; true
   (= 1 (if 1 1 0)))         ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 166 - Comparisons (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
   (defn compare-me [less-than-op i1 i2]
@@ -1364,9 +1710,17 @@
   (= :lt (compare-me (fn [x y] (< (mod x 5) (mod y 5))) 21 3))            ; true
   (= :gt (compare-me > 0 2)))                                             ; true
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 168 - Infinite Matrix (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 171 - Intervals (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 173 - Intro to Destructuring 2 (easy)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; __ = op a
 (comment
@@ -1375,5 +1729,10 @@
      (let [[[op a] b] [[+ 1] 2]] (op a b))
      (let [[op a] [inc 2]]       (op a))))
 
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 177 - Balancing Brackets (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 195 - Parentheses... Again (medium)
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
