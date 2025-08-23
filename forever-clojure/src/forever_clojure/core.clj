@@ -776,18 +776,19 @@
 
 (comment
   (defn reductions-me
-    ([f coll] (reductions-me f (rest coll) (lazy-seq [(first coll)])))
-    ([f coll acc]
-     (if (not-empty coll)
-       (let [res (f (last acc) (first coll))]
-         (cons res (lazy-seq (reductions-me f (rest coll) acc))))
-       acc))))
+    ([f coll]
+     (reductions-me f (first coll) (rest coll)))
+    ([f init coll]
+     (cons init
+           (lazy-seq
+            (when-let [s (seq coll)]
+              (reductions-me f (f init (first s)) (rest s))))))))
 
 (comment
-  (= (take 5 (reductions-me + [0 1 2 3 4 5])) [0 1 3 6 10])
-  (= (take 5 (reductions-me + (range))) [0 1 3 6 10])
-  (= (reductions-me conj [1] [2 3 4])   [[1] [1 2] [1 2 3] [1 2 3 4]])
-  (= (last (reductions-me * 2 [3 4 5])) (reduce * 2 [3 4 5]) 120))
+  (= (take 5 (reductions-me + [0 1 2 3 4 5])) [0 1 3 6 10])                  ; true
+  (= (take 5 (reductions-me + (range)))       [0 1 3 6 10])                  ; true
+  (= (reductions-me conj [1] [2 3 4])         [[1] [1 2] [1 2 3] [1 2 3 4]]) ; true
+  (= (last (reductions-me * 2 [3 4 5]))       (reduce * 2 [3 4 5]) 120))     ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 061 - Map Construction (easy)
@@ -846,6 +847,22 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 065 - Black Box Testing (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn type-me [s]
+    (let [empty-s (empty s)]
+      (cond
+        (empty? (conj empty-s nil))      :map
+        (= 1 (count (conj empty-s 1 1))) :set
+        (= 1 (first (conj empty-s 1 2))) :vector
+        :else :list))))
+
+(comment
+  (= :map    (type-me {:a 1, :b 2}))                           ; true
+  (= :list   (type-me (range (rand-int 20))))                  ; true
+  (= :vector (type-me [1 2 3 4 5 6]))                          ; true
+  (= :set    (type-me #{10 (rand-int 5)}))                     ; true
+  (= [:map :set :vector :list] (map type-me  [{} #{} [] ()]))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 066 - Greatest Common Divisor (easy)
