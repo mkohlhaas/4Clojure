@@ -884,6 +884,42 @@
 ;; 067 - Prime Numbers (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (defn prime? [n [prime & primes]]
+    (if (not prime)
+      true
+      (if (zero? (mod n prime))
+        false
+        (prime? n primes)))))
+
+(comment
+  (prime? 7 [2 3 5])    ; true
+  (prime? 9 [2 3 5 7])) ; false
+
+(comment
+  (defn next-primes
+    ([primes]
+     (next-primes (+ 2 (last primes)) primes))
+    ([candidate primes]
+     (if (prime? candidate primes)
+       (conj primes candidate)
+       (next-primes (+ 2 candidate) primes)))))
+
+(comment
+  (next-primes [2 3])         ; [2 3 5]
+  (next-primes [2 3 5])       ; [2 3 5 7]
+  (next-primes [2 3 5 7])     ; [2 3 5 7 11]
+  (next-primes [2 3 5 7 11])) ; [2 3 5 7 11 13]
+
+(comment
+  (defn primes [n]
+    (last (take (dec n) (iterate next-primes [2 3])))))
+
+(comment
+  (= (primes 2)          [2 3])         ; true
+  (= (primes 5)          [2 3 5 7 11])  ; true
+  (= (last (primes 100)) 541))          ; true
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 068 - Recurring Theme (elementary)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
