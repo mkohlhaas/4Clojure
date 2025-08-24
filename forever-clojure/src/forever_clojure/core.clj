@@ -1,7 +1,8 @@
 (ns forever-clojure.core
   (:require [clojure.java.javadoc :refer [javadoc]]
             [clojure.set]
-            [clojure.string]))
+            [clojure.string]
+            [clojure.math :as m]))
 
 ;; levels of difficulty: elementary (32) -> easy (48) -> medium (47) -> hard (18)
 
@@ -41,9 +42,7 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  (= '(1 2 3 4) (conj '(2 3 4) 1))) ; true
-
-(comment
+  (= '(1 2 3 4) (conj '(2 3 4) 1))  ; true
   (= '(1 2 3 4) (conj '(3 4) 2 1))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -58,9 +57,7 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  (= [1 2 3 4] (conj [1 2 3] 4))) ; true
-
-(comment
+  (= [1 2 3 4] (conj [1 2 3] 4))  ; true
   (= [1 2 3 4] (conj [1 2] 3 4))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;
@@ -68,9 +65,7 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  (= #{:a :b :c :d} (set '(:a :a :b :c :c :c :c :d :d)))) ; true
-
-(comment
+  (= #{:a :b :c :d} (set '(:a :a :b :c :c :c :c :d :d)))          ; true
   (= #{:a :b :c :d} (clojure.set/union #{:a :b :c} #{:b :c :d}))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -85,10 +80,8 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  (= 20 ((hash-map :a 10, :b 20, :c 30) :b))) ; true
-
-(comment
-  (= 20 (:b {:a 10, :b 20, :c 30}))) ; true
+  (= 20 ((hash-map :a 10, :b 20, :c 30) :b)) ; true
+  (= 20 (:b {:a 10, :b 20, :c 30})))         ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 011 - conj on maps (elementary)
@@ -102,12 +95,8 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  (= 3 (first '(3 2 1)))) ; true
-
-(comment
-  (= 3 (second [2 3 4]))) ; true
-
-(comment
+  (= 3 (first '(3 2 1)))     ; true
+  (= 3 (second [2 3 4]))     ; true
   (= 3 (last (list 1 2 3)))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;
@@ -260,9 +249,8 @@
   (defn fib [n] (->> [1 1]
                      (iterate (fn [[a b]] [b (+' a b)]))
                      (map first)
-                     (take n))))
+                     (take n)))
 
-(comment
   (= (fib 3) '(1 1 2))              ; true
   (= (fib 6) '(1 1 2 3 5 8))        ; true
   (= (fib 8) '(1 1 2 3 5 8 13 21))) ; true
@@ -272,9 +260,8 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  (defn palindrome? [coll] (= (reverse coll) (seq coll))))
+  (defn palindrome? [coll] (= (reverse coll) (seq coll)))
 
-(comment
   (false? (palindrome? '(1 2 3 4 5)))       ; true
   (true?  (palindrome?  "racecar"))         ; true
   (true?  (palindrome?  [:foo :bar :foo]))  ; true
@@ -291,15 +278,13 @@
       (cond
         (empty? all)  (seq '())
         (coll? fst)   (concat (flatten-me fst) (flatten-me rest))
-        :else         (conj (flatten-me rest) fst)))))
+        :else         (conj (flatten-me rest) fst))))
 
-(comment
   (defn flatten-me [c]
     (if (sequential? c) ; `seq?` doesn't work
       (mapcat flatten-me c)
-      [c])))
+      [c]))
 
-(comment
   (= (flatten-me '((1 2) 3 [4 [5 6]])) '(1 2 3 4 5 6))  ; true
   (= (flatten-me ["a" ["b"] "c"])      '("a" "b" "c"))  ; true
   (= (flatten-me '((((:a)))))          '(:a)))          ; true
@@ -310,24 +295,21 @@
 
 ;; instance method
 (comment
-  (.toUpperCase "asldfj"))    ; "ASLDFJ"
+  (.toUpperCase "asldfj")    ; "ASLDFJ"
 
 ;; class/static method
-(comment
   (Character/isUpperCase \b)  ; false
   (Character/isUpperCase \B)) ; true
 
 ;; solution with regex
 (comment
   (defn get-the-caps [str]
-    (clojure.string/join (re-seq #"[A-Z]+" str))))
+    (clojure.string/join (re-seq #"[A-Z]+" str)))
 
 ;; solution with a simple filter using Java Interop
-(comment
   (defn get-the-caps [str]
-    (clojure.string/join (filter #(Character/isUpperCase %) str))))
+    (clojure.string/join (filter #(Character/isUpperCase %) str)))
 
-(comment
   (=      (get-the-caps "HeLlO, WoRlD!") "HLOWRD")  ; true
   (empty? (get-the-caps "nothing"))                 ; true
   (=      (get-the-caps "$#A(*&987Zf") "AZ"))       ; true
@@ -339,15 +321,13 @@
 (comment
   (= (apply str (dedupe "Leeeeeerrroyyy")) "Leroy")            ; true
   (= (dedupe [1 1 2 3 3 2 2 3]) '(1 2 3 2 3))                  ; true
-  (= (dedupe [[1 2] [1 2] [3 4] [1 2]]) '([1 2] [3 4] [1 2]))) ; true
+  (= (dedupe [[1 2] [1 2] [3 4] [1 2]]) '([1 2] [3 4] [1 2])) ; true
 
-;; if `dedupe` is not allowed
-(comment
+  ;; if `dedupe` is not allowed
   (->> "Leeeeeerrroyyy"
        (partition-by identity) ; ((\L) (\e \e \e \e \e \e) (\r \r \r) (\o) (\y \y \y))
-       (map first)))            ; (\L \e \r \o \y)
+       (map first))            ; (\L \e \r \o \y)
 
-(comment
   (->> [1 1 2 3 3 2 2 3]
        (partition-by identity) ; ((1 1) (2) (3 3) (2 2) (3))
        (map first)))            ; (1 2 3 2 3)
@@ -356,9 +336,8 @@
   (defn dedupe-me [col]
     (->> col
          (partition-by identity)
-         (map first))))
+         (map first)))
 
-(comment
   (= (apply str (dedupe-me "Leeeeeerrroyyy")) "Leroy")            ; true
   (= (dedupe-me [1 1 2 3 3 2 2 3]) '(1 2 3 2 3))                  ; true
   (= (dedupe-me [[1 2] [1 2] [3 4] [1 2]]) '([1 2] [3 4] [1 2]))) ; true
@@ -369,9 +348,8 @@
 
 (comment
   (defn pack-a-sequence [coll]
-    (partition-by identity coll)))
+    (partition-by identity coll))
 
-(comment
   (= (pack-a-sequence [1 1 2 1 1 1 3 3]) '((1 1) (2) (1 1 1) (3 3)))  ; true
   (= (pack-a-sequence [:a :a :b :b :c]) '((:a :a) (:b :b) (:c)))      ; true
   (= (pack-a-sequence [[1 2] [1 2] [3 4]]) '(([1 2] [1 2]) ([3 4])))) ; true
@@ -382,9 +360,8 @@
 
 (comment
   (defn duplicate-a-sequence [coll]
-    (mapcat vector coll coll)))
+    (mapcat vector coll coll))
 
-(comment
   (= (duplicate-a-sequence [1 2 3]) '(1 1 2 2 3 3))                    ; true
   (= (duplicate-a-sequence [:a :a :b :b]) '(:a :a :a :a :b :b :b :b))  ; true
   (= (duplicate-a-sequence [[1 2] [3 4]]) '([1 2] [1 2] [3 4] [3 4]))  ; true
@@ -395,17 +372,16 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  (apply mapcat vector (repeat 2 [1 2 3]))  ; (1 1 2 2 3 3)
-  (mapcat #(repeat 2 %) [1 2 3]))           ; (1 1 2 2 3 3)
+  (apply mapcat vector (repeat 2 [1 2 3])) ; (1 1 2 2 3 3)
+  (mapcat #(repeat 2 %) [1 2 3])           ; (1 1 2 2 3 3)
 
-;; (defn replicate-a-sequence [coll n]
-;;   (apply mapcat vector (repeat n coll)))
+  (defn replicate-a-sequence [coll n]
+    (apply mapcat vector (repeat n coll))))
 
 (comment
   (defn replicate-a-sequence [coll n]
-    (mapcat #(repeat n %1) coll)))
+    (mapcat #(repeat n %1) coll))
 
-(comment
   (= (replicate-a-sequence [1 2 3] 2)       '(1 1 2 2 3 3))              ; true
   (= (replicate-a-sequence [:a :b] 4)       '(:a :a :a :a :b :b :b :b))  ; true
   (= (replicate-a-sequence [4 5 6] 1)       '(4 5 6))                    ; true
@@ -423,9 +399,8 @@
 
 (comment
   (defn range-me [start stop]
-    (take (- stop start) (iterate inc start))))
+    (take (- stop start) (iterate inc start)))
 
-(comment
   (= (range-me  1 4) '(1 2 3))      ; true
   (= (range-me -2 2) '(-2 -1 0 1))  ; true
   (= (range-me  5 8) '(5 6 7)))     ; true
@@ -464,9 +439,8 @@
 
 (comment
   (defn maximum-value [& rest]
-    (reduce #(if (> %1 %2) %1 %2) rest)))
+    (reduce #(if (> %1 %2) %1 %2) rest))
 
-(comment
   (= (maximum-value 1 8 3 4)   8)  ; true
   (= (maximum-value 30 20)    30)  ; true
   (= (maximum-value 45 67 11) 67)) ; true
@@ -480,9 +454,8 @@
 
 (comment
   (defn interleave-two-seqs [coll1 coll2]
-    (mapcat vector coll1 coll2)))
+    (mapcat vector coll1 coll2))
 
-(comment
   (= (interleave-two-seqs [1 2 3] [:a :b :c]) '(1 :a 2 :b 3 :c))  ; true
   (= (interleave-two-seqs [1 2] [3 4 5 6])    '(1 3 2 4))         ; true
   (= (interleave-two-seqs [1 2 3 4] [5])       [1 5])             ; true
@@ -500,9 +473,8 @@
 
 (comment
   (defn interpose-a-seq [val coll]
-    (butlast (interleave coll (repeat val)))))
+    (butlast (interleave coll (repeat val))))
 
-(comment
   (= (interpose-a-seq 0 [1 2 3])                              [1 0 2 0 3])             ; true
   (= (apply str (interpose-a-seq ", " ["one" "two" "three"])) "one, two, three")       ; true
   (= (interpose-a-seq :z [:a :b :c :d])                       [:a :z :b :z :c :z :d])) ; true
@@ -514,9 +486,8 @@
 (comment
   (let [coll [1 2 3 4 5 6 7 8]
         n    3]
-    (keep-indexed #(when (not= 0 (mod (inc %1) n)) %2) coll)))
+    (keep-indexed #(when (not= 0 (mod (inc %1) n)) %2) coll))
 
-(comment
   (mod 0 3)  ; 0
   (mod 1 3)  ; 1
   (mod 2 3)  ; 2
@@ -525,9 +496,8 @@
 
 (comment
   (defn drop-every-nth-item [coll n]
-    (keep-indexed #(when (not= 0 (mod (inc %1) n)) %2) coll)))
+    (keep-indexed #(when (not= 0 (mod (inc %1) n)) %2) coll))
 
-(comment
   (= (drop-every-nth-item [1 2 3 4 5 6 7 8] 3)   [1 2 4 5 7 8])  ; true
   (= (drop-every-nth-item [:a :b :c :d :e :f] 2) [:a :c :e])     ; true
   (= (drop-every-nth-item [1 2 3 4 5 6] 4)       [1 2 3 5 6]))   ; true
@@ -543,9 +513,8 @@
 ;; you can use `apply` or `reduce`
 (comment
   (defn factorial-fun [n]
-    (apply * (range 1 (inc n)))))
+    (apply * (range 1 (inc n))))
 
-(comment
   (= (factorial-fun 1) 1)      ; true
   (= (factorial-fun 3) 6)      ; true
   (= (factorial-fun 5) 120)    ; true
@@ -557,21 +526,18 @@
 
 (comment
   (partition 2 [1 2 3 4 5 6])            ; ((1 2) (3 4) (5 6))
-  (apply map list '((1 2) (3 4) (5 6)))) ; ((1 3 5) (2 4 6))
+  (apply map list '((1 2) (3 4) (5 6))) ; ((1 3 5) (2 4 6))
 
-(comment
   (partition 3 (range 9))                     ; ((0 1 2) (3 4 5) (6 7 8))
-  (apply map list '((0 1 2) (3 4 5) (6 7 8)))) ; ((0 3 6) (1 4 7) (2 5 8))
+  (apply map list '((0 1 2) (3 4 5) (6 7 8))) ; ((0 3 6) (1 4 7) (2 5 8))
 
-(comment
   (partition 5 (range 10))                     ; ((0 1 2 3 4) (5 6 7 8 9))
   (apply map list '((0 1 2 3 4) (5 6 7 8 9)))) ; ((0 5) (1 6) (2 7) (3 8) (4 9))
 
 (comment
   (defn reverse-interleave [coll n]
-    (apply map list (partition n coll))))
+    (apply map list (partition n coll)))
 
-(comment
   (= (reverse-interleave [1 2 3 4 5 6] 2) '((1 3 5) (2 4 6)))             ; true
   (= (reverse-interleave (range 9) 3) '((0 3 6) (1 4 7) (2 5 8)))         ; true
   (= (reverse-interleave (range 10) 5) '((0 5) (1 6) (2 7) (3 8) (4 9)))) ; true
@@ -585,9 +551,8 @@
     (let [n (mod n (count coll))]
       (concat
        (drop n coll)
-       (take n coll)))))
+       (take n coll))))
 
-(comment
   (= (rotate-seq  2 [1 2 3 4 5]) '(3 4 5 1 2))  ; true
   (= (rotate-seq -2 [1 2 3 4 5]) '(4 5 1 2 3))  ; true
   (= (rotate-seq  6 [1 2 3 4 5]) '(2 3 4 5 1))  ; true
@@ -642,9 +607,8 @@
 
 (comment
   (defn split-a-sequence [n coll]
-    [(take n coll) (drop n coll)]))
+    [(take n coll) (drop n coll)])
 
-(comment
   (= (split-a-sequence 3 [1 2 3 4 5 6])       [[1 2 3] [4 5 6]])        ; true
   (= (split-a-sequence 1 [:a :b :c :d])       [[:a] [:b :c :d]])        ; true
   (= (split-a-sequence 2 [[1 2] [3 4] [5 6]]) [[[1 2] [3 4]] [[5 6]]])) ; true
@@ -655,9 +619,8 @@
 
 (comment
   (defn split-by-type [coll]
-    (vals (group-by type coll))))
+    (vals (group-by type coll)))
 
-(comment
   (= (set (split-by-type [1 :a 2 :b 3 :c])) #{[1 2 3] [:a :b :c]})                  ; true
   (= (set (split-by-type [:a "foo"  "bar" :b])) #{[:a :b] ["foo" "bar"]})           ; true
   (= (set (split-by-type [[1 2] :a [3 4] 5 6 :b])) #{[[1 2] [3 4]] [:a :b] [5 6]})) ; true
@@ -688,9 +651,8 @@
   (defn partition-me [n coll]
     (let [p (take n coll)]
       (when (= (count p) n)
-        (cons p (partition-me n (drop n coll)))))))
+        (cons p (partition-me n (drop n coll))))))
 
-(comment
   (= (partition-me 3 (range 9)) '((0 1 2) (3 4 5) (6 7 8)))  ; true
   (= (partition-me 3 (range 8)) '((0 1 2) (3 4 5)))          ; true
   (= (partition-me 2 (range 8)) '((0 1) (2 3) (4 5) (6 7)))) ; true
@@ -703,9 +665,8 @@
   (defn count-occurences [coll]
     (->> coll
          (group-by identity)
-         ((flip update-vals) count))))
+         ((flip update-vals) count)))
 
-(comment
   (= (count-occurences [1 1 2 3 2 1 1]) {1 4, 2 2, 3 1})          ; true
   (= (count-occurences [:b :a :b :a :b]) {:a 2, :b 3})            ; true
   (= (count-occurences '([1 2] [1 3] [1 3])) {[1 2] 1, [1 3] 2})) ; true
@@ -716,9 +677,8 @@
 
 (comment
   (defn find-distinct-items [coll]
-    (reduce #(if (contains? (set %1) %2) %1 (conj %1 %2)) [] coll)))
+    (reduce #(if (contains? (set %1) %2) %1 (conj %1 %2)) [] coll))
 
-(comment
   (= (find-distinct-items [1 2 1 3 1 2 4]) [1 2 3 4])                        ; true
   (= (find-distinct-items [:a :a :b :b :c :c]) [:a :b :c])                   ; true
   (= (find-distinct-items '([2 4] [1 2] [1 3] [1 3])) '([2 4] [1 2] [1 3]))  ; true
@@ -739,13 +699,11 @@
   (defn comp-me [& funcs]
     (let [[func & funcs] (reverse funcs)]
       (fn [& args]
-        (reduce #(%2 %1) (apply func args) funcs)))))
+        (reduce #(%2 %1) (apply func args) funcs))))
 
-(comment
   (defn comp-me [& funcs]
-    (reduce #(fn [& args] (%1 (apply %2 args))) funcs)))
+    (reduce #(fn [& args] (%1 (apply %2 args))) funcs))
 
-(comment
   (= [3 2 1] ((comp-me rest reverse) [1 2 3 4]))                                 ; true
   (= 5       ((comp-me (partial + 3) second) [1 2 3 4]))                         ; true
   (= true    ((comp-me zero? #(mod % 8) +) 3 5 7 9))                             ; true
@@ -758,14 +716,12 @@
 (comment
   (defn juxt-me [& funcs]
     (fn [& args]
-      (reduce #(conj %1 (apply %2 args)) [] funcs))))
+      (reduce #(conj %1 (apply %2 args)) [] funcs)))
 
-(comment
   (defn juxt-me [& funcs]
     (fn [& args]
-      (map #(apply % args) funcs))))
+      (map #(apply % args) funcs)))
 
-(comment
   (= [21 6 1]    ((juxt-me + max min) 2 3 5 1 6 4))                    ; true
   (= ["HELLO" 5] ((juxt-me #(.toUpperCase %) count) "hello"))          ; true
   (= [2 6 4]     ((juxt-me :a :c :b) {:a 2, :b 4, :c 6, :d 8 :e 10}))) ; true
@@ -782,9 +738,8 @@
      (cons init
            (lazy-seq
             (when-let [s (seq coll)]
-              (reductions-me f (f init (first s)) (rest s))))))))
+              (reductions-me f (f init (first s)) (rest s)))))))
 
-(comment
   (= (take 5 (reductions-me + [0 1 2 3 4 5])) [0 1 3 6 10])                  ; true
   (= (take 5 (reductions-me + (range)))       [0 1 3 6 10])                  ; true
   (= (reductions-me conj [1] [2 3 4])         [[1] [1 2] [1 2 3] [1 2 3 4]]) ; true
@@ -799,9 +754,8 @@
 
 (comment
   (defn map-construction [keys values]
-    (into {} (map vector keys values))))
+    (into {} (map vector keys values)))
 
-(comment
   (= (map-construction [:a :b :c]  [1 2 3])               {:a 1, :b 2, :c 3})             ; true
   (= (map-construction [1 2 3 4]   ["one" "two" "three"]) {1 "one", 2 "two", 3 "three"})  ; true
   (= (map-construction [:foo :bar] ["foo" "bar" "baz"])   {:foo "foo", :bar "bar"}))      ; true
@@ -815,9 +769,8 @@
 
 (comment
   (defn iterate-me [f n]
-    (cons n (lazy-seq (iterate-me f (f n))))))
+    (cons n (lazy-seq (iterate-me f (f n)))))
 
-(comment
   (= (take 5   (iterate-me #(* 2 %) 1))         [1 2 4 8 16])              ; true
   (= (take 10  (iterate-me inc 0))              (take 10 (range)))         ; true
   (= (take 9   (iterate-me #(inc (mod % 3)) 1)) (take 9 (cycle [1 2 3])))) ; true
@@ -828,9 +781,8 @@
 
 (comment
   (defn group-a-sequence [f coll]
-    (reduce #(update-in %1 [(f %2)] concat [%2]) {} coll)))
+    (reduce #(update-in %1 [(f %2)] concat [%2]) {} coll))
 
-(comment
   (= (group-a-sequence #(> % 5) #{1 3 6 8})                    {false [1 3], true [6 8]})                    ; true
   (= (group-a-sequence #(apply / %) [[1 2] [2 4] [4 6] [3 6]]) {1/2 [[1 2] [2 4] [3 6]], 2/3 [[4 6]]})       ; true
   (= (group-a-sequence count [[1] [1 2] [3] [1 2 3] [2 3]])    {1 [[1] [3]], 2 [[1 2] [2 3]], 3 [[1 2 3]]})) ; true
@@ -855,9 +807,8 @@
         (empty? (conj empty-s nil))      :map
         (= 1 (count (conj empty-s 1 1))) :set
         (= 1 (first (conj empty-s 1 2))) :vector
-        :else :list))))
+        :else :list)))
 
-(comment
   (= :map    (type-me {:a 1, :b 2}))                           ; true
   (= :list   (type-me (range (rand-int 20))))                  ; true
   (= :vector (type-me [1 2 3 4 5 6]))                          ; true
@@ -872,9 +823,8 @@
   (defn gcd [a b]
     (if (zero? b)
       a
-      (recur b (mod a b)))))
+      (recur b (mod a b))))
 
-(comment
   (= (gcd 2 4)       2)  ; true
   (= (gcd 10 5)      5)  ; true
   (= (gcd 5 7)       1)  ; true
@@ -886,13 +836,11 @@
 
 (comment
   (defn prime? [n [prime & primes]]
-    (if (not prime)
-      true
-      (if (zero? (mod n prime))
-        false
-        (prime? n primes)))))
+    (cond
+      (not prime)           true
+      (zero? (mod n prime)) false
+      :else                 (recur n primes)))
 
-(comment
   (prime? 7 [2 3 5])    ; true
   (prime? 9 [2 3 5 7])) ; false
 
@@ -903,9 +851,8 @@
     ([candidate primes]
      (if (prime? candidate primes)
        (conj primes candidate)
-       (next-primes (+ 2 candidate) primes)))))
+       (next-primes (+ 2 candidate) primes))))
 
-(comment
   (next-primes [2 3])         ; [2 3 5]
   (next-primes [2 3 5])       ; [2 3 5 7]
   (next-primes [2 3 5 7])     ; [2 3 5 7 11]
@@ -913,9 +860,8 @@
 
 (comment
   (defn primes [n]
-    (last (take (dec n) (iterate next-primes [2 3])))))
+    (last (take (dec n) (iterate next-primes [2 3]))))
 
-(comment
   (= (primes 2)          [2 3])         ; true
   (= (primes 5)          [2 3 5 7 11])  ; true
   (= (last (primes 100)) 541))          ; true
@@ -936,9 +882,40 @@
 ;; 069 - Merge with a Function (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (defn merge-with-me [f to-map & from-maps]
+    (into
+     {}
+     (for [m     from-maps
+           [k v] m]
+       (cond
+         (to-map k) [k (f (to-map k) v)]
+         :else      [k v]))))
+
+  (= (merge-with-me * {:a 2, :b 3, :c 4} {:a 2} {:b 2} {:c 5})             ; true
+     {:a 4, :b 6, :c 20})
+  (= (merge-with-me - {1 10, 2 20} {1 3, 2 10, 3 15})                      ; true
+     {1 7, 2 10, 3 15})
+  (= (merge-with-me concat {:a [3], :b [6]} {:a [4 5], :c [8 9]} {:b [7]}) ; true
+     {:a [3 4 5], :b [6 7], :c [8 9]}))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 070 - Word Sorting (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn word-sorting [s]
+    (sort #(compare (.toLowerCase %1) (.toLowerCase %2)) (re-seq #"\w+" s)))
+
+  (defn word-sorting [s]
+    (sort-by #(.toLowerCase %) (re-seq #"\w+" s)))
+
+  (= (word-sorting "Have a nice day.")                ; true
+     ["a" "day" "Have" "nice"])
+  (= (word-sorting "Clojure is a fun language!")      ; true
+     ["a" "Clojure" "fun" "is" "language"])
+  (= (word-sorting "Fools fall for foolish follies.") ; true
+     ["fall" "follies" "foolish" "Fools" "for"]))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 071 - Rearranging Code: -> (elementary)
@@ -966,17 +943,80 @@
 ;; 074 - Filter Perfect Squares (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (defn perfect-square? [n]
+    (zero? (mod (m/sqrt n) 1)))
+
+  (defn filter-perfect-squares [s]
+    (->> s
+         (re-seq #"\d+")
+         (map read-string)
+         (filter perfect-square?)
+         (map str)
+         (clojure.string/join ",")))
+
+  (= (filter-perfect-squares "4,5,6,7,8,9")    "4,9")       ; true
+  (= (filter-perfect-squares "15,16,25,36,37") "16,25,36")) ; true
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 075 - Euler's Totient Function (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn gcd [a b]
+    (if (zero? b)
+      a
+      (recur b (mod a b))))
+
+  (defn totient [n]
+    (if (= n 1)
+      1
+      (count (filter #(= 1 (gcd %1 n)) (range 1 n)))))
+
+  (= (totient 1)  1)                    ; true
+  (= (totient 10) (count '(1 3 7 9)) 4) ; true
+  (= (totient 40) 16)                   ; true
+  (= (totient 99) 60))                  ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 076 - Intro to Trampoline (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(= [1 3 5 7 9 11]                       ; true
+   (letfn
+    [(foo [x y] #(bar (conj x y) y))
+     (bar [x y] (if (> (last x) 10)
+                  x
+                  #(foo x (+ 2 y))))] (trampoline foo [] 1)))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 077 - Anagram Finder (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn permutations [coll]
+    (if (= 1 (count coll))
+      (list coll)
+      (for [head coll
+            tail (permutations (disj (set coll) head))]
+        (cons head tail))))
+
+  (map (partial apply str) (permutations "meat")))
+  ; ("maet" "mate" "meat" "meta" "mtae" "mtea" "eamt" "eatm" "emat"
+  ;  "emta" "etam" "etma" "aemt" "aetm" "amet" "amte" "atem" "atme"
+  ;  "taem" "tame" "team" "tema" "tmae" "tmea")
+
+((set ["meat" "mat" "team" "mate" "eat"]) "meat") ; "meat"
+((set ["meat" "mat" "team" "mate" "eat"]) "abc")  ; nil
+
+(comment
+  (defn anagrams [words]
+    :not-implemented)
+
+  (= (anagrams ["meat" "mat" "team" "mate" "eat"])
+     #{#{"meat" "team" "mate"}})
+  (= (anagrams ["veer" "lake" "item" "kale" "mite" "ever"])
+     #{#{"veer" "ever"} #{"lake" "kale"} #{"mite" "item"}}))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 078 - Reimplement Trampoline (medium)
