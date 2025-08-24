@@ -998,7 +998,7 @@
     (if (= 1 (count coll))
       (list coll)
       (for [head coll
-            tail (permutations (disj (set coll) head))]
+            tail (permutations (disj (set coll) head))] ; TODO: Cannot use set here! (same characters are allowed)
         (cons head tail))))
 
   (map (partial apply str) (permutations "meat")))
@@ -1009,9 +1009,15 @@
 ((set ["meat" "mat" "team" "mate" "eat"]) "meat") ; "meat"
 ((set ["meat" "mat" "team" "mate" "eat"]) "abc")  ; nil
 
+(set [#{"meat" "team" "mate"}, #{"meat" "team" "mate"}]) ; #{#{"meat" "mate" "team"}}
+
 (comment
   (defn anagrams [words]
-    :not-implemented)
+    ;; (for [word words]
+    (for [word words
+          perm (map (partial apply str) (permutations word))]
+          ;; :when ((disj (set words) word) perm)]
+      [word perm]))
 
   (= (anagrams ["meat" "mat" "team" "mate" "eat"])
      #{#{"meat" "team" "mate"}})
