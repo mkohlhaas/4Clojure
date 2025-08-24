@@ -994,34 +994,105 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
+  "complicated solution"
+
   (defn permutations [coll]
     (if (= 1 (count coll))
       (list coll)
-      (for [head coll
-            tail (permutations (disj (set coll) head))] ; TODO: Cannot use set here! (same characters are allowed)
-        (cons head tail))))
+      (for [idx  (range (count coll))
+            tail (permutations (remove-nth coll idx))]
+        (cons (nth coll idx) tail))))
 
-  (map (partial apply str) (permutations "meat")))
+  (defn remove-nth
+    [coll n]
+    (into (subvec (vec coll) 0 n) (subvec (vec coll) (inc n))))
+
+  (remove-nth "meat" 0)
+
+  (map (partial apply str) (permutations "meat"))
   ; ("maet" "mate" "meat" "meta" "mtae" "mtea" "eamt" "eatm" "emat"
   ;  "emta" "etam" "etma" "aemt" "aetm" "amet" "amte" "atem" "atme"
   ;  "taem" "tame" "team" "tema" "tmae" "tmea")
 
-((set ["meat" "mat" "team" "mate" "eat"]) "meat") ; "meat"
-((set ["meat" "mat" "team" "mate" "eat"]) "abc")  ; nil
+  ;; wrong
+  (map (partial apply str) (permutations "veer"))
+  ; ("veer" "vere" "veer" "vere" "vree" "vree" "ever" "evre" "eevr"
+  ;  "eerv" "erve" "erev" "ever" "evre" "eevr" "eerv" "erve" "erev"
+  ;  "rvee" "rvee" "reve" "reev" "reve" "reev")
 
-(set [#{"meat" "team" "mate"}, #{"meat" "team" "mate"}]) ; #{#{"meat" "mate" "team"}}
+  ((set ["meat" "mat" "team" "mate" "eat"]) "meat") ; "meat"
+  ((set ["meat" "mat" "team" "mate" "eat"]) "abc")  ; nil
+
+  (set [#{"meat" "team" "mate"}, #{"meat" "team" "mate"}]) ; #{#{"meat" "mate" "team"}}
+
+  (defn anagrams [words]
+    (set (filter #(> (count %) 1)
+                 (set
+                  (for [word words]
+                    (apply conj #{word}
+                           (for [perm (map (partial apply str) (permutations word))
+                                 :when (and (not= word perm) (not (neg? (.indexOf words perm))))]
+                             perm))))))))
 
 (comment
+  "elegant solution but wrong"
   (defn anagrams [words]
-    ;; (for [word words]
-    (for [word words
-          perm (map (partial apply str) (permutations word))]
-          ;; :when ((disj (set words) word) perm)]
-      [word perm]))
+    (->> (group-by set words)
+         (vals)
+         (filter #(> (count %) 1))
+         (map set)
+         (set)))
 
-  (= (anagrams ["meat" "mat" "team" "mate" "eat"])
+  (group-by set ["meat" "mat" "team" "mate" "eat"])
+  ; {#{\a \e \m \t} ["meat" "team" "mate"],
+  ;  #{\a \m \t}    ["mat"],
+  ;  #{\a \e \t}    ["eat"]}
+
+  (group-by set ["veer" "lake" "item" "kale" "mite" "ever"])
+  ; {#{\e \r \v}    ["veer" "ever"],
+  ;  #{\a \e \k \l} ["lake" "kale"],
+  ;  #{\e \i \m \t} ["item" "mite"]}
+
+  ;; "eerev" will lead to a WRONG result!!!
+  (group-by set ["veer" "lake" "item" "kale" "mite" "ever" "eerev"])
+  ; {#{\e \r \v}    ["veer" "ever" "eerev"], ; "eerev" is wrong!
+  ;  #{\a \e \k \l} ["lake" "kale"],
+  ;  #{\e \i \m \t} ["item" "mite"]}
+
+  (= (anagrams ["meat" "mat" "team" "mate" "eat"])           ; true
      #{#{"meat" "team" "mate"}})
-  (= (anagrams ["veer" "lake" "item" "kale" "mite" "ever"])
+  (= (anagrams ["veer" "lake" "item" "kale" "mite" "ever"])  ; true
+     #{#{"veer" "ever"} #{"lake" "kale"} #{"mite" "item"}})
+  (= (anagrams ["veere" "veer" "lake" "item" "kale" "mite" "ever"]) ; false
+     #{#{"veer" "ever"} #{"lake" "kale"} #{"mite" "item"}}))
+
+(comment
+  "beautiful solution and correct"
+
+  (defn anagrams [words]
+    (->> words
+         (group-by frequencies)
+         vals
+         (filter #(> (count %) 1))
+         (map set)
+         set))
+
+  (group-by frequencies ["meat" "mat" "team" "mate" "eat"])
+  ; {{\m 1, \e 1, \a 1, \t 1} ["meat" "team" "mate"],
+  ;  {\m 1, \a 1, \t 1}       ["mat"],
+  ;  {\e 1, \a 1, \t 1}       ["eat"]}
+
+  (group-by frequencies ["veere" "veer" "lake" "item" "kale" "mite" "ever"])
+  ; {{\v 1, \e 3, \r 1}       ["veere"],
+  ;  {\v 1, \e 2, \r 1}       ["veer" "ever"],
+  ;  {\l 1, \a 1, \k 1, \e 1} ["lake" "kale"],
+  ;  {\i 1, \t 1, \e 1, \m 1} ["item" "mite"]}
+
+  (= (anagrams ["meat" "mat" "team" "mate" "eat"])                  ; true
+     #{#{"meat" "team" "mate"}})
+  (= (anagrams ["veer" "lake" "item" "kale" "mite" "ever"])         ; true
+     #{#{"veer" "ever"} #{"lake" "kale"} #{"mite" "item"}})
+  (= (anagrams ["veere" "veer" "lake" "item" "kale" "mite" "ever"]) ; true
      #{#{"veer" "ever"} #{"lake" "kale"} #{"mite" "item"}}))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
