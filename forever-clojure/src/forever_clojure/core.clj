@@ -1099,6 +1099,24 @@
 ;; 078 - Reimplement Trampoline (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (defn trampoline-me [f & args]
+    (loop [res (apply f args)]
+      (if (ifn? res)
+        (recur (res))
+        res)))
+
+  (= (letfn [(triple  [x] #(sub-two (* 3 x)))                         ; true
+             (sub-two [x] #(stop? (- x 2)))
+             (stop?   [x] (if (> x 50) x #(triple x)))]
+       (trampoline-me triple 2))
+     82)
+
+  (= (letfn [(my-even? [x] (if (zero? x) true  #(my-odd?  (dec x))))  ; true
+             (my-odd?  [x] (if (zero? x) false #(my-even? (dec x))))]
+       (map (partial trampoline-me my-even?) (range 6)))
+     [true false true false true false]))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 079 - Triangle Minimal Path (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1106,6 +1124,18 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 080 - Perfect Numbers (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn perfect-number? [n]
+    (= n (apply + (for [m (range 1 n)
+                        :when (zero? (rem n m))]
+                    m))))
+
+  (= (perfect-number? 6) true)     ; true
+  (= (perfect-number? 7) false)    ; true
+  (= (perfect-number? 496) true)   ; true
+  (= (perfect-number? 500) false)  ; true
+  (= (perfect-number? 8128) true)) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 081 - Set Intersection (easy)
@@ -1125,13 +1155,11 @@
 
 (comment
   (defn intersect-me [s1 s2]
-    (set (filter s1 s2))))
+    (set (filter s1 s2)))
 
-(comment
   (defn intersect-me [s1 s2]
-    (reduce #(if (contains? s2 %2) (conj %1 %2) %1) #{} s1)))
+    (reduce #(if (contains? s2 %2) (conj %1 %2) %1) #{} s1))
 
-(comment
   (= (intersect-me #{0 1 2 3} #{2 3 4 5})            #{2 3})       ; true
   (= (intersect-me #{0 1 2} #{3 4 5})                #{})          ; true
   (= (intersect-me #{:a :b :c :d} #{:c :e :a :f :d}) #{:a :c :d})) ; true
@@ -1146,9 +1174,8 @@
 
 (comment
   (defn half-truth [& rest]
-    (and (not-every? true? rest) (not-every? false? rest))))
+    (and (not-every? true? rest) (not-every? false? rest)))
 
-(comment
   (= false (half-truth false false))           ; true
   (= true  (half-truth true false))            ; true
   (= false (half-truth true))                  ; true
@@ -1164,13 +1191,63 @@
 ;; 085 - Power Set (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  ;; Haskell
+  ;; type Set a = [a]
+  ;;
+  ;; powerset :: Set a -> Set (Set a)
+  ;; powerset [] = [[]]
+  ;; powerset (x:xs) = [x:ps | ps <- powerset xs] ++ powerset xs
+
+  ;; Haskell equivalent
+  (defn power-set [[x & xs :as s]]
+    (if (seq s)
+      (let [ps (power-set xs)]
+        (concat (map #(conj % x) ps) ps))
+      #{#{}}))
+
+  ;; constructive
+  (defn power-set [coll]
+    (reduce (fn [a x] (into a (map #(conj % x)) a))
+            #{#{}}
+            coll))
+
+  (= (power-set #{1 :a})  #{#{1 :a} #{:a} #{} #{1}})                           ; true
+  (= (power-set #{1 2 3}) #{#{} #{1} #{2} #{3} #{1 2} #{1 3} #{2 3} #{1 2 3}}) ; true
+  (= (count (power-set (into #{} (range 10)))) 1024)                           ; true
+  (= (count (power-set (into #{} (range 20)))) 1048576))                       ; true
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 086 - Happy numbers (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; ;;;;;;;;;;;;;;;;;;;;;;;;
-;; 087 - Create an Equation
-;; ;;;;;;;;;;;;;;;;;;;;;;;;
+;; def is_happy(number: int) -> bool:
+;;     """Determine if the specified number is a happy number."""
+;;     seen_numbers = set()
+;;     while number > 1 and number not in seen_numbers:
+;;         seen_numbers.add(number)
+;;         number = pdi_function(number)
+;;     return number == 1
+
+(comment
+  (defn char->num [c]
+    (- (int c) 48))
+
+  (defn sum-squared [n]
+    (let [n-str (str n)]
+      (apply + (map #(* (char->num %) (char->num %)) n-str))))
+
+  (defn happy-number? [n]
+    (loop [n n, seen #{}]
+      (cond
+        (= 1 n)  true
+        (seen n) false
+        :else (recur (sum-squared n) (conj seen n)))))
+
+  (= (happy-number? 7)         true)   ; true
+  (= (happy-number? 986543210) true)   ; true
+  (= (happy-number? 2)         false)  ; true
+  (= (happy-number? 3)         false)) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 088 - Symmetric Difference (easy)
@@ -1202,9 +1279,8 @@
 (comment
   (defn cartesian-product [c1 c2]
     (set (for [c1 c1 c2 c2]
-           [c1 c2]))))
+           [c1 c2])))
 
-(comment
   (= (cartesian-product #{"ace" "king" "queen"} #{"♠" "♥" "♦" "♣"})                ; true
      #{["ace"   "♠"] ["ace"   "♥"] ["ace"   "♦"] ["ace"   "♣"]
        ["king"  "♠"] ["king"  "♥"] ["king"  "♦"] ["king"  "♣"]
@@ -1224,6 +1300,19 @@
 ;; 093 - Partially Flatten a Sequence (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (defn flatten-partially [[x :as xs]]
+    (if (coll? x)
+      (mapcat flatten-partially xs)
+      [xs]))
+
+  (= (flatten-partially [["Do"] ["Nothing"]])               ; true
+     [["Do"] ["Nothing"]])
+  (= (flatten-partially [[[[:a :b]]] [[:c :d]] [:e :f]])    ; true
+     [[:a :b] [:c :d] [:e :f]])
+  (= (flatten-partially '((1 2) ((3 4) ((((5 6)))))))       ; true
+     '((1 2) (3 4) (5 6))))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 094 - Game of Life (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1238,9 +1327,8 @@
         (and (sequential? tree)
              (= 3 (count tree))
              (tree? (nth tree 1))
-             (tree? (nth tree 2))))))
+             (tree? (nth tree 2)))))
 
-(comment
   (= (tree? '(:a nil nil))                           true)   ; true
   (= (tree? '(:a (:b nil nil) nil))                  true)   ; true
   (= (tree? '(:a (:b nil nil)))                      false)  ; true
@@ -1260,9 +1348,8 @@
          (or (and (nil? left1) (nil? right2))
              (symmetric-trees? left1 right2))
          (or (and (nil? right1) (nil? left2))
-             (symmetric-trees? right1 left2)))))
+             (symmetric-trees? right1 left2))))
 
-(comment
   (symmetric-trees? ; false
    '(:b nil nil)
    '(:c nil nil))
@@ -1295,9 +1382,8 @@
                        (symmetric-trees? left1 right2))
                    (or (and (nil? right1) (nil? left2))
                        (symmetric-trees? right1 left2))))])
-    (symmetric-trees? left right)))
+    (symmetric-trees? left right))
 
-(comment
   (= (beauty-is-symmetry '(:a (:b nil nil) (:b nil nil)))                                                              true)   ; true
   (= (beauty-is-symmetry '(:a (:b nil nil) nil))                                                                       false)  ; true
   (= (beauty-is-symmetry '(:a (:b nil nil) (:c nil nil)))                                                              false)  ; true
@@ -1309,31 +1395,45 @@
 ;; 097 - Pascal's Triangle (easy)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(comment)
-(defn pascal-triangle
-  ([n] (pascal-triangle n [1]))
-  ([n acc]
-   (if (= n 1)
-     acc
-     (pascal-triangle (dec n)
-                      (conj (vec (conj (map (partial apply +) (partition 2 1 acc)) 1)) 1)))))
-
 (comment
+  (defn pascal-triangle
+    ([n] (pascal-triangle n [1]))
+    ([n acc]
+     (if (= n 1)
+       acc
+       (pascal-triangle (dec n)
+                        (conj (vec (conj (map (partial apply +) (partition 2 1 acc)) 1)) 1)))))
+
   (= (pascal-triangle 1) [1])          ; true
   (= (map pascal-triangle (range 1 6)) ; true
      [[1]
       [1 1]
       [1 2 1]
       [1 3 3 1]
-      [1 4 6 4 1]]))
-
-(comment
+      [1 4 6 4 1]])
   (= (pascal-triangle 11) [1 10 45 120 210 252 210 120 45 10 1])  ; true
   (= (pascal-triangle 11) [1 10 45 120 210 252 210 120 45 10 1])) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 098 - Equivalence Classes (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn equivalence-rel [f coll]
+    (->> coll
+         (group-by f)
+         vals
+         (map set)
+         set))
+
+  (= (equivalence-rel #(* % %) #{-2 -1 0 1 2})        ; true
+     #{#{0} #{1 -1} #{2 -2}})
+  (= (equivalence-rel #(rem % 3) #{0 1 2 3 4 5})      ; true
+     #{#{0 3} #{1 4} #{2 5}})
+  (= (equivalence-rel identity #{0 1 2 3 4})          ; true
+     #{#{0} #{1} #{2} #{3} #{4}})
+  (= (equivalence-rel (constantly true) #{0 1 2 3 4}) ; true
+     #{#{0 1 2 3 4}}))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 099 - Product Digits (easy)
@@ -1360,9 +1460,67 @@
 ;; 102 - intoCamelCase (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (defn into-camel-case [s]
+    (clojure.string/replace s #"-\w" #(.toUpperCase (subs % 1 2))))
+
+  (= (into-camel-case "something")      "something")     ; true
+  (= (into-camel-case "multi-word-key") "multiWordKey")  ; true
+  (= (into-camel-case "leaveMeAlone")   "leaveMeAlone")) ; true
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 103 - Generating kcombinations (medium)
+;; 103 - Generating k-combinations (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn remove-nth
+    [coll n]
+    (into (subvec (vec coll) 0 n) (subvec (vec coll) (inc n))))
+
+  (defn permutations [coll]
+    (if (= 1 (count coll))
+      (list coll)
+      (for [idx  (range (count coll))
+            tail (permutations (remove-nth coll idx))]
+        (cons (nth coll idx) tail))))
+
+  (defn take-me [n coll]
+    (let [res (take n coll)]
+      (when (= n (count res))
+        res)))
+
+  (defn k-combinations [n s]
+    (let [res (set (map #(set (take-me n %)) (permutations (vec s))))]
+      (if (= res #{#{}})
+        #{}
+        res))))
+
+(comment
+  (permutations [4 5 6])                  ; ((4 5 6) (4 6 5) (5 4 6) (5 6 4) (6 4 5) (6 5 4))
+  (permutations [0 1 2])                  ; ((0 1 2) (0 2 1) (1 0 2) (1 2 0) (2 0 1) (2 1 0))
+  (permutations [0 1 2 3 4])
+  (permutations [[1 2 3] :a "abc" "efg"])
+
+  (set [(set []) (set [])])
+
+  (vec #{1 2 3})) ; [1 3 2]
+
+(comment
+  (defn k-combinations [k s]
+    (cond
+      (zero?  k) #{#{}}
+      (empty? s) #{}
+      :else (set (for [i s
+                       x (k-combinations (dec k) (disj s i))]
+                   (conj x i))))))
+
+(comment
+  (= (k-combinations  1 #{4 5 6})                  #{#{4} #{5} #{6}})                                                                            ; true
+  (= (k-combinations  2 #{0 1 2})                  #{#{0 1} #{0 2} #{1 2}})                                                                      ; true
+  (= (k-combinations 10 #{4 5 6})                  #{})                                                                                          ; true
+  (= (k-combinations  3 #{0 1 2 3 4})              #{#{0 1 2} #{0 1 3} #{0 1 4} #{0 2 3} #{0 2 4} #{0 3 4} #{1 2 3} #{1 2 4} #{1 3 4} #{2 3 4}}) ; true
+  (= (k-combinations  4 #{[1 2 3] :a "abc" "efg"}) #{#{[1 2 3] :a "abc" "efg"}})                                                                 ; true
+  (= (k-combinations  2 #{[1 2 3] :a "abc" "efg"}) #{#{[1 2 3] :a} #{[1 2 3] "abc"} #{[1 2 3] "efg"} #{:a "abc"} #{:a "efg"} #{"abc" "efg"}}))   ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 104 - Write Roman Numerals (medium)
