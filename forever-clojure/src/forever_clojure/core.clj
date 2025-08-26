@@ -1575,6 +1575,27 @@
 ;; 105 - Identify keys and values (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (into {} '([:a [1 2 3]] [:c [3]] [:b []]))                  ; {:a [1 2 3], :c [3], :b []}
+  (into {} (conj '([:a [1 2 3]] [:c [3]] [:b []]) [:d [4]]))) ; {:d [4], :a [1 2 3], :c [3], :b []}
+
+(comment
+  (defn identify-kv [coll]
+    (into {}
+          (reduce
+           (fn [[[k val-list] & rest :as acc] key-or-val]
+             (if (keyword? key-or-val)
+               (conj acc  [key-or-val []])
+               (conj rest [k (conj val-list key-or-val)])))
+           []
+           coll)))
+
+  (= {}                              (identify-kv []))                     ; true
+  (= {:a [1]}                        (identify-kv [:a 1]))                 ; true
+  (= {:a [1] :b [2]}                 (identify-kv [:a 1, :b 2]))           ; true
+  (= {:a [1 2 3] :b [] :c [4]}       (identify-kv [:a 1 2 3 :b :c 4]))     ; true
+  (= {:a [1 2 3] :b [] :c [] :d [4]} (identify-kv [:a 1 2 3 :b :d 4 :c]))) ; true
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 106 - Number Maze (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
