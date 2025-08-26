@@ -2,7 +2,8 @@
   (:require [clojure.java.javadoc :refer [javadoc]]
             [clojure.set]
             [clojure.string]
-            [clojure.math :as m]))
+            [clojure.math :as m]
+            [clojure.pprint]))
 
 ;; levels of difficulty: elementary (32) -> easy (48) -> medium (47) -> hard (18)
 
@@ -1525,6 +1526,50 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 104 - Write Roman Numerals (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (def arabic-roman-map
+    [[1000 "M"]  [900 "CM"] [500 "D"]  [400 "CD"] [100 "C"]
+     [90   "XC"] [50  "L"]  [40  "XL"] [10  "X"]
+     [9    "IX"] [5   "V"]  [4   "IV"] [1   "I"]])
+
+  (defn d2r
+    ([n]
+     (apply str (d2r n arabic-roman-map [])))
+    ([n [[arabic roman] & rest-arabic-roman-map :as arabic-roman-map] acc]
+     (if (zero? n)
+       acc
+       (if (>= n arabic)
+         (recur (- n arabic) arabic-roman-map      (conj acc roman))
+         (recur n            rest-arabic-roman-map acc))))))
+
+(comment
+  ;; cheating solution (but very useful for testing)
+  (def arabic->roman
+    (partial clojure.pprint/cl-format nil "~@R"))
+
+  ;; how many errors?
+  (->> (range 1 4000)                                ; 0
+       (map (fn [n] [n (arabic->roman n) (d2r n)]))
+       (filter (fn [[_n r1 r2]] (not= r1 r2)))
+       count))
+
+(comment
+  (= "I"         (d2r 1))     ; true
+  (= "IV"        (d2r 4))     ; true
+  (= "XXX"       (d2r 30))    ; true
+  (= "XLVIII"    (d2r 48))    ; true
+  (= "CXL"       (d2r 140))   ; true
+  (= "DCCCXXVII" (d2r 827))   ; true
+  (= "MMMCMXCIX" (d2r 3999))  ; true
+
+  (= "I"         (arabic->roman 1))     ; true
+  (= "IV"        (arabic->roman 4))     ; true
+  (= "XXX"       (arabic->roman 30))    ; true
+  (= "XLVIII"    (arabic->roman 48))    ; true
+  (= "CXL"       (arabic->roman 140))   ; true
+  (= "DCCCXXVII" (arabic->roman 827))   ; true
+  (= "MMMCMXCIX" (arabic->roman 3999))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 105 - Identify keys and values (medium)
