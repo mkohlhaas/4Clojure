@@ -1663,15 +1663,15 @@
 ;; 112 - Sequs Horribilis (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn sequs-horribilis [n [head & tail]]
-  (when head
-    (if (number? head)
-      (if (<= head n)
-        (conj (sequs-horribilis (- n head) tail) head)
-        (list))
-      (list (sequs-horribilis n head)))))
-
 (comment
+  (defn sequs-horribilis [n [head & tail]]
+    (when head
+      (if (number? head)
+        (if (<= head n)
+          (conj (sequs-horribilis (- n head) tail) head)
+          (list))
+        (list (sequs-horribilis n head)))))
+
   (= (sequs-horribilis 10 [1 2 [3 [4 5] 6] 7])                 '(1 2 (3 (4))))             ; true
   (= (sequs-horribilis 1 [1])                                  '(1))                       ; true
   (= (sequs-horribilis 1 [[[[[1]]]]])                          '(((((1))))))               ; true
@@ -1685,6 +1685,20 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 114 - Global takewhile (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn global-take-while [n p [x & xs]]
+    (if (p x)
+      (if (= n 1)
+        nil
+        (cons x (global-take-while (dec n) p xs)))
+      (cons x (global-take-while n p xs))))
+
+  (= [2 3]                        (global-take-while 2 #(= 2 (mod % 3)) [2 3 5 7 11 13 17 19 23])) ; 2,5,11,17,23 ; true
+  (= [2 3 5 7 11 13]              (global-take-while 4 #(= 2 (mod % 3)) [2 3 5 7 11 13 17 19 23])) ; 2,5,11,17,23 ; true
+  (= [2 3 5 7 11 13 17 19]        (global-take-while 5 #(= 2 (mod % 3)) [2 3 5 7 11 13 17 19 23])) ; 2,5,11,17,23 ; true
+  (= ["this" "is" "a" "sentence"] (global-take-while 3 #(some #{\i} %) ["this" "is" "a" "sentence" "i" "wrote"])) ; true
+  (= ["this" "is"]                (global-take-while 1 #{"a"} ["this" "is" "a" "sentence" "i" "wrote"])))         ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 115 - The Balance of N (medium)
