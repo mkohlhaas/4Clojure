@@ -1663,6 +1663,25 @@
 ;; 112 - Sequs Horribilis (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn sequs-horribilis [n [head & tail]]
+  (when head
+    (if (number? head)
+      (if (<= head n)
+        (conj (sequs-horribilis (- n head) tail) head)
+        (list))
+      (list (sequs-horribilis n head)))))
+
+(comment
+  (= (sequs-horribilis 10 [1 2 [3 [4 5] 6] 7])                 '(1 2 (3 (4))))             ; true
+  (= (sequs-horribilis 1 [1])                                  '(1))                       ; true
+  (= (sequs-horribilis 1 [[[[[1]]]]])                          '(((((1))))))               ; true
+  (= (sequs-horribilis 9 (range))                              '(0 1 2 3))                 ; true
+  (= (sequs-horribilis 30 [1 2 [3 [4 [5 [6 [7 8]] 9]] 10] 11]) '(1 2 (3 (4 (5 (6 (7))))))) ; true
+  (= (sequs-horribilis 9 (range))                              '(0 1 2 3))                 ; true
+  (= (sequs-horribilis 0 [1 2 [3 [4 5] 6] 7])                  '())                        ; true
+  (= (sequs-horribilis 0 [0 0 [0 [0]]])                        '(0 0 (0 (0))))             ; true
+  (= (sequs-horribilis 1 [-10 [1 [2 3 [4 5 [6 7 [8]]]]]])      '(-10 (1 (2 3 (4))))))      ; true
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 114 - Global takewhile (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
