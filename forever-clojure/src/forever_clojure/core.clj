@@ -1618,6 +1618,25 @@
 ;; 108 - Lazy Searching (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (defn lazy-search [& colls]
+    (let [firsts (map first colls)]
+      (if (apply = firsts)
+        (first firsts)
+        (apply lazy-search
+               (map
+                #(drop-while (partial > (apply max firsts)) %)
+                colls)))))
+
+  (= 3  (lazy-search [3 4 5]))                                     ; true
+  (= 4  (lazy-search [1 2 3 4 5 6 7] [0.5 3/2 4 19]))              ; true
+  (= 64 (lazy-search (map #(* % % %) (range))                      ; true
+                     (filter #(zero? (bit-and % (dec %))) (range))
+                     (iterate inc 20)))
+  (= 7  (lazy-search (range)                                       ; true
+                     (range 0 100 7/6)
+                     [2 3 5 7 11 13])))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 110 - Sequence of pronunciations (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
