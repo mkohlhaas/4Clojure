@@ -334,8 +334,8 @@
        (map first)))            ; (1 2 3 2 3)
 
 (comment
-  (defn dedupe-me [col]
-    (->> col
+  (defn dedupe-me [coll]
+    (->> coll
          (partition-by identity)
          (map first)))
 
@@ -1640,6 +1640,20 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 110 - Sequence of pronunciations (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn pronunciations [coll]
+    (rest
+     (iterate #(->> %
+                    (partition-by identity)
+                    (mapcat (juxt count first)))
+              coll)))
+
+  (= [3 1 2 4]               (first      (pronunciations [1 1 1 4 4]))) ; true
+  (= [[1 1] [2 1] [1 2 1 1]] (take 3     (pronunciations [1])))         ; true
+  (= [1 1 1 3 2 1 3 2 1 1]   (nth        (pronunciations [1]) 6))       ; true
+  (= 338                     (count (nth (pronunciations [3 2]) 15)))   ; true
+  (= 1282                    (count (nth (pronunciations [3 2]) 20))))  ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 111 - Crossword puzzle (hard)
