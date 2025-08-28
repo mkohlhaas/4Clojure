@@ -842,10 +842,9 @@
       (zero? (mod n prime)) false
       :else                 (recur n primes)))
 
-  (prime? 7 [2 3 5])    ; true
-  (prime? 9 [2 3 5 7])) ; false
+  (prime? 7 [2 3 5])   ; true
+  (prime? 9 [2 3 5 7]) ; false
 
-(comment
   (defn next-primes
     ([primes]
      (next-primes (+ 2 (last primes)) primes))
@@ -854,15 +853,16 @@
        (conj primes candidate)
        (next-primes (+ 2 candidate) primes))))
 
+  (defn primes [n]
+    (last (take (dec n) (iterate next-primes [2 3])))))
+
+(comment
   (next-primes [2 3])         ; [2 3 5]
   (next-primes [2 3 5])       ; [2 3 5 7]
   (next-primes [2 3 5 7])     ; [2 3 5 7 11]
   (next-primes [2 3 5 7 11])) ; [2 3 5 7 11 13]
 
 (comment
-  (defn primes [n]
-    (last (take (dec n) (iterate next-primes [2 3]))))
-
   (= (primes 2)          [2 3])         ; true
   (= (primes 5)          [2 3 5 7 11])  ; true
   (= (last (primes 100)) 541))          ; true
@@ -1709,11 +1709,11 @@
     (- (int d) 48))
 
   (defn balanced? [n]
-    (let [n-str     #p (str n)
-          n-str-len #p (count n-str)
-          count     #p (clojure.math/floor-div n-str-len 2)
-          fst       #p (apply + (map char-to-int (take count n-str)))
-          snd       #p (apply + (map char-to-int (take-last count n-str)))]
+    (let [n-str     (str n)
+          n-str-len (count n-str)
+          count     (clojure.math/floor-div n-str-len 2)
+          fst       (apply + (map char-to-int (take count n-str)))
+          snd       (apply + (map char-to-int (take-last count n-str)))]
       (= fst snd)))
 
   (= true     (balanced? 0))     ; true
@@ -1729,6 +1729,37 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 116 - Prime Sandwich (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  "taken from 064"
+
+  (defn prime? [n [prime & primes]]
+    (cond
+      (not prime)           true
+      (zero? (mod n prime)) false
+      :else                 (recur n primes)))
+
+  (defn next-primes
+    ([primes]
+     (next-primes (+ 2 (last primes)) primes))
+    ([candidate primes]
+     (if (prime? candidate primes)
+       (conj primes candidate)
+       (next-primes (+ 2 candidate) primes))))
+
+  (defn prime-sandwich? [n]
+    (loop [primes [2 3 5]]
+      (let [[l p r] (take-last 3 primes)]
+        (if (= p n)
+          (= (+ l r) (* 2 p))
+          (if (> p n)
+            false
+            (recur (next-primes primes))))))))
+
+(comment
+  (= false (prime-sandwich? 4))                        ; true
+  (= true  (prime-sandwich? 563))                      ; true
+  (= 1103  (nth (filter prime-sandwich? (range)) 15))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 117 - For Science! (hard)
