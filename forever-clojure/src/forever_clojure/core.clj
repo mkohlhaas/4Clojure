@@ -1973,7 +1973,20 @@
 ;; 131 - Sum Some Set Subsets (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; use k-combinations
+;; using k-combinations from 102
+(defn k-combinations [k s]
+  (cond
+    (zero?  k) #{#{}}
+    (empty? s) #{}
+    :else (set (for [i s
+                     x (k-combinations (dec k) (disj s i))]
+                 (conj x i)))))
+
+(set (map (partial reduce +) (k-combinations 2 #{-1 1 99}))) ; #{#{1 99} #{-1 99} #{1 -1}} ; (100 98 0) #{0 100 98}
+
+(not-empty (clojure.set/union #{}))  ; nil
+(not-empty (clojure.set/union #{1})) ; #{1}
+
 (defn sum-some-set [& sets]
   :not-implented)
 
