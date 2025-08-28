@@ -1834,6 +1834,19 @@
 ;; 121 - Universal Computation Engine (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; uce returns a function that takes bindings
+(defn uce [formula]
+  :not-implemented)
+
+(comment
+  (= 2        ((uce '(/ a b))   '{b 8, a 16}))
+  (= 8        ((uce '(+ a b 2)) '{a 2, b 4}))
+  (= [6 0 -4] (map (uce '(* (+ 2 a (- 10 b))))
+                   '[{a 1, b 8}
+                     {b 5, a -2}
+                     {a 2, b 11}]))
+  (= 1        ((uce '(/ (+ x 2 (* 3 (+ y 1))))) '{x 4, y 1})))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 122 - Read a binary number (easy)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
