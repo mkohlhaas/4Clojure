@@ -1973,6 +1973,21 @@
 ;; 131 - Sum Some Set Subsets (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; use k-combinations
+(defn sum-some-set [& sets]
+  :not-implented)
+
+(comment
+  (= true  (sum-some-set #{-1 1 99} #{-2 2 888} #{-3 3 7777})) ; 0
+  (= false (sum-some-set #{1} #{2} #{3} #{4}))
+  (= true  (sum-some-set #{1}))
+  (= false (sum-some-set #{1 -3 51 9} #{0} #{9 2 81 33}))
+  (= true  (sum-some-set #{1 3 5} #{9 11 4} #{-3 12 3} #{-3 4 -2 10})) ; 9
+  (= false (sum-some-set #{-1 -2 -3 -4 -5 -6} #{1 2 3 4 5 6 7 8 9}))
+  (= true  (sum-some-set #{1 3 5 7} #{2 4 6 8})) ; 4
+  (= true  (sum-some-set #{-1 3 -5 7 -9 11 -13 15} #{1 -3 5 -7 9 -11 13 -15} #{1 -1 2 -2 4 -4 8 -8}))
+  (= true  (sum-some-set #{-10 9 -8 7 -6 5 -4 3 -2 1} #{10 -9 8 -7 6 -5 4 -3 2 -1})))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 132 - Intervals (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
