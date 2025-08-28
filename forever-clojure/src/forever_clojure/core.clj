@@ -1704,6 +1704,28 @@
 ;; 115 - The Balance of N (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (defn char-to-int [d]
+    (- (int d) 48))
+
+  (defn balanced? [n]
+    (let [n-str     #p (str n)
+          n-str-len #p (count n-str)
+          count     #p (clojure.math/floor-div n-str-len 2)
+          fst       #p (apply + (map char-to-int (take count n-str)))
+          snd       #p (apply + (map char-to-int (take-last count n-str)))]
+      (= fst snd)))
+
+  (= true     (balanced? 0))     ; true
+  (= true     (balanced? 11))    ; true
+  (= true     (balanced? 121))   ; true
+  (= true     (balanced? 89098)) ; true
+  (= true     (balanced? 89089)) ; true
+  (= false    (balanced? 123))   ; true
+  (= false    (balanced? 88099)) ; true
+  (= (take 20 (filter balanced? (range))) ; true
+     [0 1 2 3 4 5 6 7 8 9 11 22 33 44 55 66 77 88 99 101]))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 116 - Prime Sandwich (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
