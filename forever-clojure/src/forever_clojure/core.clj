@@ -1974,7 +1974,9 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  ;; using k-combinations from 102
+  "using k-combinations from 102"
+  "very slow"
+
   (defn k-combinations [k s]
     (cond
       (zero?  k) #{#{}}
@@ -1983,43 +1985,26 @@
                        x (k-combinations (dec k) (disj s i))]
                    (conj x i)))))
 
-  ;; too slow
   (defn sum-some-set [& sets]
-    (not
-     (nil?
-      (not-empty
-       (apply clojure.set/intersection
-              (for [s sets]
-                (set
-                 (for [n    (range 1 (inc (count s)))
-                       sums (set (map (partial reduce +) (k-combinations n s)))]
-                   sums)))))))))
+    (not=
+     #{}
+     (apply clojure.set/intersection
+            (for [s sets]
+              (set
+               (for [n    (range 1 (inc (count s)))
+                     sums (set (map (partial reduce +) (k-combinations n s)))]
+                 sums)))))))
 
 (comment
   (defn sum-some-set [& sets]
     (let [sums (fn [[x & xs]]
                  (reduce
-                  #(into % (cons %2 (map (partial + %2) %)))
+                  #(into %1 (cons %2 (map (partial + %2) %1)))
                   #{x}
                   xs))]
       (not= #{} (reduce
                  #(set (filter %1 %2))
-                 (map (comp sums seq) sets))))))
-
-(defn sums [[x & xs]]
-  (reduce
-   #(into %1 (cons %2 (map (partial + %2) %1)))
-   #{x}
-   ;; [x]
-   xs))
-
-(sums [-1 1]) ; [-1 1 0]
-; [-1 1 0 99 98 100 99] #{0 1 -1 99 100 98}
-
-(defn sum-some-set [& sets]
-  (not= #{} (reduce
-             #(set (filter %1 %2))
-             (map (comp sums seq) sets))))
+                 (map sums sets))))))
 
 (comment
   (= true  (sum-some-set #{-1 1 99} #{-2 2 888} #{-3 3 7777}))                                        ; true
@@ -2035,6 +2020,35 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 132 - Intervals (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; creates a lazy sequence (bc of last test case)
+(comment
+  (defn intervals [p val [x & _xs :as coll]]
+    (if x
+      (->> (partition 2 1 coll)
+           (map (fn [[n1 n2]] (if (p n1 n2) [val n2] [n2])))
+           (concat [x])
+           (flatten))
+      (empty coll)))
+
+  (defn intervals [p val coll]
+    (if (seq coll)
+      (cons (first coll)
+            (mapcat #(if (apply p %) [val (last %)] [(last %)])
+                    (partition 2 1 coll)))
+      '()))
+
+  (= '(1 :less 6 :less 7 4 3) (intervals < :less [1 6 7 4 3]))                     ; true
+  (= '(2)                     (intervals > :more [2]))                             ; true
+  (= [0 1 :x 2 :x 3 :x 4]     (intervals #(and (pos? %1) (< %1 %2)) :x (range 5))) ; true
+  (empty?                     (intervals > :more []))                              ; true
+  (= [0 1 :same 1 2 3 :same 5 8 13 :same 21]                                       ; true
+     (take 12 (->> [0 1]                                 ; fibonacci numbers
+                   (iterate (fn [[a b]] [b (+ a b)]))
+                   (map first)
+                   (intervals (fn [a b]
+                                (= (mod a 2) (mod b 2))) ; both even or both odd
+                              :same)))))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 134 - A nil key (elementary)
