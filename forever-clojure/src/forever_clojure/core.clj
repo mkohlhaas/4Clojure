@@ -2086,6 +2086,35 @@
 ;; 137 - Digits and bases (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  ((juxt quot rem) 1234501 10)  ; [123450 1]
+  ((juxt quot rem) 123450  10)  ; [12345 0]
+  ((juxt quot rem) 12345   10)  ; [1234 5]
+  ((juxt quot rem) 1234    10)  ; [123 4]
+  ((juxt quot rem) 123     10)  ; [12 3]
+  ((juxt quot rem) 12      10)  ; [1 2]
+  ((juxt quot rem) 1       10)  ; [0 1]
+  ((juxt quot rem) 0       10)  ; [0 0]
+
+  ((juxt quot rem) 0       11)) ; [0 0]
+
+(comment
+  (defn digits-and-bases [n base]
+    (let [quot-rem (juxt quot rem)]
+      (if (zero? n)
+        [0]
+        (->> (quot-rem n base)
+             (iterate (fn [[n _]] (quot-rem n base)))
+             (take-while (fn [[n d]] (not= 0 n d)))
+             (map second)
+             (reverse)))))
+
+  (= [1 2 3 4 5 0 1]                  (digits-and-bases 1234501 10))         ; true
+  (= [0]                              (digits-and-bases 0 11))               ; true
+  (= [1 0 0 1]                        (digits-and-bases 9 2))                ; true
+  (= [1 0] (let [n (rand-int 100000)] (digits-and-bases n n)))               ; true
+  (= [12 36 0 6 30 7 4 35 25 14 36 7] (digits-and-bases Long/MAX_VALUE 42))) ; true
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 140 - Veitch, Please! (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
