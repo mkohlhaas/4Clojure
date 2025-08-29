@@ -2119,21 +2119,29 @@
 ;; 141 - Tricky card games (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn tricky-card-games [trump-suit]
-  :not-implemented)
+(comment
+  (apply max-key :rank (filter #(= (:suit %) :club) [{:suit :club, :rank 4} {:suit :club :rank 9}]))
+  (group-by :suit [{:suit :spade, :rank 2} {:suit :club :rank 10}]) ; {:spade [{:suit :spade, :rank 2}], :club [{:suit :club, :rank 10}]}
+
+  (letfn [(max-card [suit cards] (apply max-key :rank (filter #(= (:suit %) suit) cards)))]
+    (max-card :club [{:suit :club,  :rank 4} {:suit :club, :rank  9}])))
 
 (comment
-  (= {:suit :club,  :rank 9} ((tricky-card-games nil) [{:suit :club,  :rank 4} {:suit :club, :rank  9}]))
+  (defn tricky-card-games [trump-suit]
+    (fn [cards]
+      (letfn [(max-card [suit cards] (apply max-key :rank (filter #(= (:suit %) suit) cards)))]
+        (let [lead-suit (:suit (first cards))]
+          (if-let [winner (max-card (or trump-suit lead-suit) cards)]
+            winner
+            (max-card lead-suit cards))))))
 
-  (= {:suit :spade, :rank 2} ((tricky-card-games nil) [{:suit :spade, :rank 2} {:suit :club, :rank 10}]))
-
-  (let [notrump (tricky-card-games nil)]
+  (= {:suit :club,  :rank 9} ((tricky-card-games nil) [{:suit :club,  :rank 4} {:suit :club, :rank  9}]))                                  ; true
+  (= {:suit :spade, :rank 2} ((tricky-card-games nil) [{:suit :spade, :rank 2} {:suit :club, :rank 10}]))                                  ; true
+  (let [notrump (tricky-card-games nil)]                                                                                                   ; true
     (and (= {:suit :club,  :rank 9} (notrump [{:suit :club,  :rank 4} {:suit :club :rank  9}]))
          (= {:suit :spade, :rank 2} (notrump [{:suit :spade, :rank 2} {:suit :club :rank 10}]))))
-
-  (= {:suit :club,  :rank 10} ((tricky-card-games :club) [{:suit :spade, :rank 2} {:suit :club, :rank 10}]))
-
-  (= {:suit :heart, :rank 8}
+  (= {:suit :club,  :rank 10} ((tricky-card-games :club) [{:suit :spade, :rank 2} {:suit :club, :rank 10}]))                               ; true
+  (= {:suit :heart, :rank 8}                                                                                                               ; true
      ((tricky-card-games :heart) [{:suit :heart, :rank  6} {:suit :heart, :rank 8} {:suit :diamond, :rank 10} {:suit :heart, :rank 4}])))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
