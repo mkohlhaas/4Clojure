@@ -1973,33 +1973,64 @@
 ;; 131 - Sum Some Set Subsets (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; using k-combinations from 102
-(defn k-combinations [k s]
-  (cond
-    (zero?  k) #{#{}}
-    (empty? s) #{}
-    :else (set (for [i s
-                     x (k-combinations (dec k) (disj s i))]
-                 (conj x i)))))
+(comment
+  ;; using k-combinations from 102
+  (defn k-combinations [k s]
+    (cond
+      (zero?  k) #{#{}}
+      (empty? s) #{}
+      :else (set (for [i s
+                       x (k-combinations (dec k) (disj s i))]
+                   (conj x i)))))
 
-(set (map (partial reduce +) (k-combinations 2 #{-1 1 99}))) ; #{#{1 99} #{-1 99} #{1 -1}} ; (100 98 0) #{0 100 98}
-
-(not-empty (clojure.set/union #{}))  ; nil
-(not-empty (clojure.set/union #{1})) ; #{1}
-
-(defn sum-some-set [& sets]
-  :not-implented)
+  ;; too slow
+  (defn sum-some-set [& sets]
+    (not
+     (nil?
+      (not-empty
+       (apply clojure.set/intersection
+              (for [s sets]
+                (set
+                 (for [n    (range 1 (inc (count s)))
+                       sums (set (map (partial reduce +) (k-combinations n s)))]
+                   sums)))))))))
 
 (comment
-  (= true  (sum-some-set #{-1 1 99} #{-2 2 888} #{-3 3 7777})) ; 0
-  (= false (sum-some-set #{1} #{2} #{3} #{4}))
-  (= true  (sum-some-set #{1}))
-  (= false (sum-some-set #{1 -3 51 9} #{0} #{9 2 81 33}))
-  (= true  (sum-some-set #{1 3 5} #{9 11 4} #{-3 12 3} #{-3 4 -2 10})) ; 9
-  (= false (sum-some-set #{-1 -2 -3 -4 -5 -6} #{1 2 3 4 5 6 7 8 9}))
-  (= true  (sum-some-set #{1 3 5 7} #{2 4 6 8})) ; 4
-  (= true  (sum-some-set #{-1 3 -5 7 -9 11 -13 15} #{1 -3 5 -7 9 -11 13 -15} #{1 -1 2 -2 4 -4 8 -8}))
-  (= true  (sum-some-set #{-10 9 -8 7 -6 5 -4 3 -2 1} #{10 -9 8 -7 6 -5 4 -3 2 -1})))
+  (defn sum-some-set [& sets]
+    (let [sums (fn [[x & xs]]
+                 (reduce
+                  #(into % (cons %2 (map (partial + %2) %)))
+                  #{x}
+                  xs))]
+      (not= #{} (reduce
+                 #(set (filter %1 %2))
+                 (map (comp sums seq) sets))))))
+
+(defn sums [[x & xs]]
+  (reduce
+   #(into %1 (cons %2 (map (partial + %2) %1)))
+   #{x}
+   ;; [x]
+   xs))
+
+(sums [-1 1]) ; [-1 1 0]
+; [-1 1 0 99 98 100 99] #{0 1 -1 99 100 98}
+
+(defn sum-some-set [& sets]
+  (not= #{} (reduce
+             #(set (filter %1 %2))
+             (map (comp sums seq) sets))))
+
+(comment
+  (= true  (sum-some-set #{-1 1 99} #{-2 2 888} #{-3 3 7777}))                                        ; true
+  (= false (sum-some-set #{1} #{2} #{3} #{4}))                                                        ; true
+  (= true  (sum-some-set #{1}))                                                                       ; true
+  (= false (sum-some-set #{1 -3 51 9} #{0} #{9 2 81 33}))                                             ; true
+  (= true  (sum-some-set #{1 3 5} #{9 11 4} #{-3 12 3} #{-3 4 -2 10}))                                ; true
+  (= false (sum-some-set #{-1 -2 -3 -4 -5 -6} #{1 2 3 4 5 6 7 8 9}))                                  ; true
+  (= true  (sum-some-set #{1 3 5 7} #{2 4 6 8}))                                                      ; true
+  (= true  (sum-some-set #{-1 3 -5 7 -9 11 -13 15} #{1 -3 5 -7 9 -11 13 -15} #{1 -1 2 -2 4 -4 8 -8})) ; true
+  (= true  (sum-some-set #{-10 9 -8 7 -6 5 -4 3 -2 1} #{10 -9 8 -7 6 -5 4 -3 2 -1})))                 ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 132 - Intervals (medium)
@@ -2018,7 +2049,7 @@
 (comment
   (true?  (#(nil? (%1 %2 false)) :a {:a nil :b 2}))  ; true
   (false? (#(nil? (%1 %2 false)) :b {:a nil :b 2}))  ; true
-  (false? (#(nil? (%1 %2 false)) :c {:a nil :b 2}))) ; true
+  (false? (#(nil? (%1 %2 false)) :c {:a nil :b 2}))) ; true ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 135 - Infix Calculator (easy)
