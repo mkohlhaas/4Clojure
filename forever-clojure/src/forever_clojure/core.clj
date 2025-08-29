@@ -1938,10 +1938,6 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  {\2 0, \3 1, \4 2, \5 3, \6 4, \7 5, \8 6, \9 7, \T 8, \J 9, \Q 10, \K 11, \A 12}
-  {\S :spade, \H :heart, \D :diamond, \C :club})
-
-(comment
   (def card-map
     {\2 0, \3 1, \4 2, \5 3, \6 4, \7 5, \8 6, \9 7, \T 8, \J 9, \Q 10, \K 11, \A 12, \S :spade, \H :heart, \D :diamond, \C :club}))
 
@@ -2122,6 +2118,23 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 141 - Tricky card games (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn tricky-card-games [trump-suit]
+  :not-implemented)
+
+(comment
+  (= {:suit :club,  :rank 9} ((tricky-card-games nil) [{:suit :club,  :rank 4} {:suit :club, :rank  9}]))
+
+  (= {:suit :spade, :rank 2} ((tricky-card-games nil) [{:suit :spade, :rank 2} {:suit :club, :rank 10}]))
+
+  (let [notrump (tricky-card-games nil)]
+    (and (= {:suit :club,  :rank 9} (notrump [{:suit :club,  :rank 4} {:suit :club :rank  9}]))
+         (= {:suit :spade, :rank 2} (notrump [{:suit :spade, :rank 2} {:suit :club :rank 10}]))))
+
+  (= {:suit :club,  :rank 10} ((tricky-card-games :club) [{:suit :spade, :rank 2} {:suit :club, :rank 10}]))
+
+  (= {:suit :heart, :rank 8}
+     ((tricky-card-games :heart) [{:suit :heart, :rank  6} {:suit :heart, :rank 8} {:suit :diamond, :rank 10} {:suit :heart, :rank 4}])))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 143 - dot product (easy)
