@@ -736,8 +736,8 @@
     ([f coll]
      (reductions-me f (first coll) (rest coll)))
     ([f init coll]
-     (cons init
-           (lazy-seq
+     (lazy-seq
+      (cons init
             (when-let [s (seq coll)]
               (reductions-me f (f init (first s)) (rest s)))))))
 
@@ -770,7 +770,8 @@
 
 (comment
   (defn iterate-me [f n]
-    (cons n (lazy-seq (iterate-me f (f n)))))
+    (lazy-seq
+     (cons n (iterate-me f (f n)))))
 
   (= (take 5   (iterate-me #(* 2 %) 1))         [1 2 4 8 16])              ; true
   (= (take 10  (iterate-me inc 0))              (take 10 (range)))         ; true
@@ -834,6 +835,20 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 067 - Prime Numbers (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Lazy sequences
+;; (comment
+;;   (def primes
+;;     (remove
+;;      (fn [x] (some #(zero? (mod x %)) primes))
+;;      (iterate inc 2))))
+;;
+;; (comment
+;;   (take 10 primes)
+;;   (take 50 primes)
+;;   (time (nth primes 10000))
+;;   (time (nth primes 20000))
+;;   (time (nth primes 30000)))
 
 (comment
   (defn prime? [n [prime & primes]]
@@ -1771,8 +1786,9 @@
 
 (comment
   (defn map-me [f [head & rest]]
-    (when head
-      (cons (f head) (lazy-seq (map-me f rest))))))
+    (lazy-seq
+     (when head
+       (cons (f head) (map-me f rest))))))
 
 (comment
   (map-me inc (range))) ; (1 2 3 4 5 6 7 8 9 10 11 …)
@@ -2162,6 +2178,46 @@
 ;; 144 - Oscilrate (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  "Too complicated"
+
+  (defn cycle-me [coll]
+    (let [fst (first coll)
+          lst (vec (rest coll))]
+      (conj lst fst)))
+
+  (cycle-me '(1 2 3)) ; [2 3 1]
+  (cycle-me  [1 2 3]) ; [2 3 1]
+
+  (defn oscilrate [init & funs]
+    (lazy-seq
+     (let [next ((first funs) init)]
+       (cons init (apply oscilrate next (cycle-me funs)))))))
+
+(comment
+  "https://clojure.org/reference/lazy#_recipe_how_to_write_lazy_sequence_functions_in_new_model"
+
+  (defn oscilrate [init & funs]
+    (lazy-seq
+     (let [next ((first funs) init)]
+       (cons init (apply oscilrate next (concat (rest funs) [(first funs)]))))))
+
+  (let [i [1 2 3]] ; (2 3 1)
+    (concat (rest i) [(first i)])))
+
+(comment
+  "`reduce` isn't lazy, but `reductions` is!"
+
+  (defn oscilrate [init & funs]
+    (reductions (fn [acc f] (f acc))
+                init
+                (cycle funs))))
+
+(comment
+  (= (take 3  (oscilrate 3.14 int double))       [3.14 3 3.0])               ; true
+  (= (take 5  (oscilrate 3 #(- % 3) #(+ 5 %)))   [3 0 5 2 7])                ; true
+  (= (take 12 (oscilrate 0 inc dec inc dec inc)) [0 1 0 1 0 1 2 1 2 1 2 3])) ; true
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 145 - For the win (elementary)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2169,15 +2225,13 @@
 (comment
   (= '(1 5 9 13 17 21 25 29 33 37) (for [x (range 40)           ; true
                                          :when (= 1 (rem x 4))]
-                                     x)))
+                                     x))
 
-(comment
   (= '(1 5 9 13 17 21 25 29 33 37) (for [x (iterate #(+ 4 %) 0) ; true
                                          :let [z (inc x)]
                                          :while (< z 40)]
-                                     z)))
+                                     z))
 
-(comment
   (= '(1 5 9 13 17 21 25 29 33 37) (for [[x y] (partition 2 (range 20))] ; true
                                      (+ x y))))
 
@@ -2190,9 +2244,8 @@
     (into {}
           (for [[k  v]  tree
                 [k' v'] v]
-            [[k k'] v']))))
+            [[k k'] v'])))
 
-(comment
   (= (trees-into-tables '{a {p 1, q 2}, b {m 3, n 4}})                        ; true
      '{[a p] 1, [a q] 2, [b m] 3, [b n] 4})
   (= (trees-into-tables '{[1] {a b c d} [2] {q r s t u v w x}})               ; true
@@ -2206,19 +2259,18 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  (defn pascal-trapezoid [l]
-    (iterate
-     #(map +'
-           (concat [0] %)
-           (concat % [0]))
-     l)))
-
-(comment
   (concat [0] [2 3 2])                                ; (0 2 3 2)
   (concat [2 3 2] [0])                                ; (2 3 2 0)
   (map +' (concat [0] [2 3 2]) (concat [2 3 2] [0]))) ; (2 5 5 2)
 
 (comment
+  (defn pascal-trapezoid [l]
+    (iterate
+     #(map +'
+           (concat [0] %)
+           (concat % [0]))
+     l))
+
   (= (second   (pascal-trapezoid [2 3 2])) [2 5 5 2])                                   ; true
   (= (take 5   (pascal-trapezoid [1]))     [[1] [1 1] [1 2 1] [1 3 3 1] [1 4 6 4 1]])   ; true
   (= (take 2   (pascal-trapezoid [3 1 2])) [[3 1 2] [3 4 3 2]])                         ; true
@@ -2227,6 +2279,18 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 148 - The Big Divide (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn big-divide [n a b]
+  :df)
+
+(comment
+  (= 0                          (big-divide 3 17 11))
+  (= 23                         (big-divide 10 3 5))
+  (= 233168                     (big-divide 1000 3 5))
+  (= "2333333316666668"         (str (big-divide 100000000 3 5)))
+  (= "110389610389889610389610" (str (big-divide (* 10000 10000 10000) 7 11)))
+  (= "1277732511922987429116"   (str (big-divide (* 10000 10000 10000) 757 809)))
+  (= "4530161696788274281"      (str (big-divide (* 10000 10000 1000) 1597 3571))))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 150 - Palindromic Numbers (medium)
