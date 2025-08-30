@@ -2280,13 +2280,19 @@
 ;; 148 - The Big Divide (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn big-divide [n a b]
-  :df)
+;; too slow
+(comment
+  ;; direct calculation
+  (defn big-divide [n a b]
+    (let [calc #(let [n (quot (dec n) %)]
+                  (/ (*' % n (inc n)) 2))]
+      (-' (+' #p (calc a) #p (calc b)) (calc (*' a b))))))
 
 (comment
   (= 0                          (big-divide 3 17 11))
   (= 23                         (big-divide 10 3 5))
   (= 233168                     (big-divide 1000 3 5))
+
   (= "2333333316666668"         (str (big-divide 100000000 3 5)))
   (= "110389610389889610389610" (str (big-divide (* 10000 10000 10000) 7 11)))
   (= "1277732511922987429116"   (str (big-divide (* 10000 10000 10000) 757 809)))
