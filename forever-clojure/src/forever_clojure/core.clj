@@ -2286,21 +2286,56 @@
   (defn big-divide [n a b]
     (let [calc #(let [n (quot (dec n) %)]
                   (/ (*' % n (inc n)) 2))]
-      (-' (+' #p (calc a) #p (calc b)) (calc (*' a b))))))
+      (-' (+' (calc a) (calc b)) (calc (*' a b))))))
 
 (comment
-  (= 0                          (big-divide 3 17 11))
-  (= 23                         (big-divide 10 3 5))
-  (= 233168                     (big-divide 1000 3 5))
+  (= 0                          (big-divide 3 17 11))                               ; true
+  (= 23                         (big-divide 10 3 5))                                ; true
+  (= 233168                     (big-divide 1000 3 5))                              ; true
 
-  (= "2333333316666668"         (str (big-divide 100000000 3 5)))
-  (= "110389610389889610389610" (str (big-divide (* 10000 10000 10000) 7 11)))
-  (= "1277732511922987429116"   (str (big-divide (* 10000 10000 10000) 757 809)))
-  (= "4530161696788274281"      (str (big-divide (* 10000 10000 1000) 1597 3571))))
+  (= "2333333316666668"         (str (big-divide 100000000 3 5)))                   ; true
+  (= "110389610389889610389610" (str (big-divide (* 10000 10000 10000) 7 11)))      ; true
+  (= "1277732511922987429116"   (str (big-divide (* 10000 10000 10000) 757 809)))   ; true
+  (= "4530161696788274281"      (str (big-divide (* 10000 10000 1000) 1597 3571)))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 150 - Palindromic Numbers (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn palindrome-number [n]
+    (let [s (str n)
+          left-half (read-string (subs s 0 (quot (inc (count s)) 2)))
+          palindrome (->> (iterate inc left-half)
+                          (map str)
+                          (map #(str % (subs (clojure.string/reverse %)
+                                             (if (even? (count s)) 0 1)
+                                             (count %))))
+                          (map read-string)
+                          (filter (partial <= n))
+                          first)]
+      (lazy-seq
+       (cons palindrome (palindrome-number (inc palindrome)))))))
+
+(comment
+  (= (take 26 (palindrome-number 0))                              ; true
+     [0 1 2 3 4 5 6 7 8 9
+      11 22 33 44 55 66 77 88 99
+      101 111 121 131 141 151 161])
+  (= (take 16 (palindrome-number 162))                            ; true
+     [171 181 191 202
+      212 222 232 242
+      252 262 272 282
+      292 303 313 323])
+  (= (take 6 (palindrome-number 1234550000))                      ; true
+     [1234554321 1234664321 1234774321
+      1234884321 1234994321 1235005321])
+  (= (first (palindrome-number (* 111111111 111111111)))          ; true
+     (* 111111111 111111111))
+  (= (set (take 199 (palindrome-number 0)))                       ; true
+     (set (map #(first (palindrome-number %)) (range 0 10000))))
+  (= true (apply < (take 6666 (palindrome-number 9999999))))      ; true
+  (= (nth (palindrome-number 0) 10101) 9102019))                  ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 153 - Pairwise Disjoint Sets (easy)
@@ -2392,6 +2427,27 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;
 ;; 158 - Decurry (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  (defn decurry [f]
+    (if (fn? f)
+      (fn [g] (f (decurry g)))
+      f)))
+
+(comment
+  (= 10 ((decurry (fn [a]
+                    (fn [b]
+                      (fn [c]
+                        (fn [d] (+ a b c d))))))
+         1 2 3 4))
+  (= 24 ((decurry (fn [a]
+                    (fn [b]
+                      (fn [c]
+                        (fn [d] (* a b c d))))))
+         1 2 3 4))
+  (= 25 ((decurry (fn [a]
+                    (fn [b] (* a b))))
+         5 5)))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 161 - Subset and Superset (elementary)
