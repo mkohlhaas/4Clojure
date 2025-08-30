@@ -2430,22 +2430,20 @@
 
 (comment
   (defn decurry [f]
-    (if (fn? f)
-      (fn [g] (f (decurry g)))
-      f)))
+    (fn [& args] (reduce #(%1 %2) (f (first args)) (rest args)))))
 
 (comment
-  (= 10 ((decurry (fn [a]
+  (= 10 ((decurry (fn [a]                        ; true
                     (fn [b]
                       (fn [c]
                         (fn [d] (+ a b c d))))))
          1 2 3 4))
-  (= 24 ((decurry (fn [a]
+  (= 24 ((decurry (fn [a]                        ; true
                     (fn [b]
                       (fn [c]
                         (fn [d] (* a b c d))))))
          1 2 3 4))
-  (= 25 ((decurry (fn [a]
+  (= 25 ((decurry (fn [a]                        ; true
                     (fn [b] (* a b))))
          5 5)))
 
