@@ -247,6 +247,34 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
+  (defn fib1
+    ([]
+     (fib1 0 1))
+    ([a b]
+     (lazy-seq (cons a (fib1 b (+ a b))))))
+
+  (take 10 (fib1)) ; (0 1 1 2 3 5 8 13 21 34)
+  (nth (fib1) 9))  ; -> 34
+
+(comment
+  (def fib-seq
+    ((fn fib [prev1 prev2]
+       (lazy-seq (cons prev1 (fib prev2 (+ prev1 prev2)))))
+     0 1))
+
+  (take 10 fib-seq) ; -> (0 1 1 2 3 5 8 13 21 34)
+  (nth fib-seq 9))  ; -> 34
+
+(comment
+  (def fibs
+    (->> [0 1]
+         (iterate (fn [[prev1 prev2]] [prev2 (+ prev1 prev2)]))
+         (map first)))
+
+  (take 10 fibs) ; -> (0 1 1 2 3 5 8 13 21 34)
+  (nth fibs 9))  ; -> 34
+
+(comment
   (defn fib [n] (->> [1 1]
                      (iterate (fn [[a b]] [b (+' a b)]))
                      (map first)
@@ -2430,7 +2458,7 @@
 
 (comment
   (defn decurry [f]
-    (fn [& args] (reduce #(%1 %2) (f (first args)) (rest args)))))
+    (fn [& args] (reduce #(%1 %2) f args))))
 
 (comment
   (= 10 ((decurry (fn [a]                        ; true
@@ -2493,9 +2521,134 @@
 ;; 168 - Infinite Matrix (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn integers
+  ([]
+   (integers 0))
+  ([n]
+   (lazy-seq
+    (cons n (integers (inc n))))))
+
+(take 10 (integers))  ; (0 1 2 3 4 5 6 7 8 9)
+
+(defn matrix [n m]
+  (lazy-seq
+   (cons (integers)
+         (cons (integers)
+               (matrix (inc n) (inc m))))))
+
+(take 2 (take 2 (matrix 0 0)))
+
+(defn infinite-matrix
+  ([f]
+   (f 0 0))
+  ([f m n]
+   (f m n))
+  ([f m n s t]
+   (f m n s t)))
+
+(comment
+  (= (take 5 (map #(take 6 %) (infinite-matrix str)))
+     [["00" "01" "02" "03" "04" "05"]
+      ["10" "11" "12" "13" "14" "15"]
+      ["20" "21" "22" "23" "24" "25"]
+      ["30" "31" "32" "33" "34" "35"]
+      ["40" "41" "42" "43" "44" "45"]])
+
+  (= (take 6 (map #(take 5 %) (infinite-matrix str 3 2)))
+     [["32" "33" "34" "35" "36"]
+      ["42" "43" "44" "45" "46"]
+      ["52" "53" "54" "55" "56"]
+      ["62" "63" "64" "65" "66"]
+      ["72" "73" "74" "75" "76"]
+      ["82" "83" "84" "85" "86"]])
+
+  (= (infinite-matrix * 3 5 5 7)
+     [[15 18 21 24 27 30 33]
+      [20 24 28 32 36 40 44]
+      [25 30 35 40 45 50 55]
+      [30 36 42 48 54 60 66]
+      [35 42 49 56 63 70 77]])
+
+  (= (infinite-matrix #(/ % (inc %2)) 1 0 6 4)
+     [[1/1 1/2 1/3 1/4]
+      [2/1 2/2 2/3 1/2]
+      [3/1 3/2 3/3 3/4]
+      [4/1 4/2 4/3 4/4]
+      [5/1 5/2 5/3 5/4]
+      [6/1 6/2 6/3 6/4]])
+
+  (= (class (infinite-matrix (juxt bit-or bit-xor)))
+     (class (infinite-matrix (juxt quot mod) 13 21))
+     (class (lazy-seq)))
+
+  (= (class (nth (infinite-matrix (constantly 10946)) 34))
+     (class (nth (infinite-matrix (constantly 0) 5 8) 55))
+     (class (lazy-seq)))
+
+  (= (let [m        377
+           n        610
+           w        987
+           check    (fn [f s] (every? true? (map-indexed f s)))
+           row      (take w (nth (infinite-matrix vector) m))
+           column   (take w (map first (infinite-matrix vector m n)))
+           diagonal (map-indexed #(nth %2 %) (infinite-matrix vector m n w w))]
+       (and (check #(= %2 [m %]) row)
+            (check #(= %2 [(+ m %) n]) column)
+            (check #(= %2 [(+ m %) (+ n %)]) diagonal)))
+     true))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 171 - Intervals (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+
+  "complicated"
+  (defn intervals [coll]
+    (if (seq coll)
+      (let [l (dedupe (sort coll))]
+        (map (fn [lst] [(first lst) (last lst)])
+             (filter (partial not= (list :sep))
+                     (partition-by (partial = :sep)
+                                   (reduce
+                                    (fn [acc n] (if (= (inc (last acc)) n) (conj acc n) (conj acc :sep n)))
+                                    [(first l)]
+                                    (rest l))))))
+      []))
+
+  "elegant"
+  (defn intervals [coll]
+    (->> coll
+         distinct
+         sort
+         (map-indexed #(list (- %2 %1) %2))
+         (partition-by first)
+         (map #(list (last (first %)) (last (last %))))))
+
+  (map-indexed #(list (- %2 %) %2) (sort (distinct [19 4 17 1 3 10 2 13 13 2 16 4 2 15 13 9 6 14 2 11]))))
+  ; ((1 1)
+  ;  (1 2)
+  ;  (1 3)
+  ;  (1 4)
+  ;  (2 6)
+  ;  (4 9)
+  ;  (4 10)
+  ;  (4 11)
+  ;  (5 13)
+  ;  (5 14)
+  ;  (5 15)
+  ;  (5 16)
+  ;  (5 17)
+  ;  (6 19))
+
+(comment
+  (= (intervals [1]) [[1 1]])                                        ; true
+  (= (intervals [1 2 3]) [[1 3]])                                    ; true
+  (= (intervals [10 9 8 1 2 3]) [[1 3] [8 10]])                      ; true
+  (= (intervals [1 1 1 1 1 1 1]) [[1 1]])                            ; true
+  (= (intervals []) [])                                              ; true
+  (= (intervals [19 4 17 1 3 10 2 13 13 2 16 4 2 15 13 9 6 14 2 11]) ; true
+     [[1 4] [6 6] [9 11] [13 17] [19 19]]))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 173 - Intro to Destructuring 2 (easy)
