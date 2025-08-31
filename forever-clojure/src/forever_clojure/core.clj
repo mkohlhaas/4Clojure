@@ -2702,3 +2702,56 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 195 - Parentheses... Again (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(comment
+  "generate recursively"
+
+  (declare generate-parens)
+
+  (defn add-open-paren [n num-open-parens res acc]
+    (if (= (count acc) (* 2 n))
+      (if (zero? num-open-parens))
+      (conj res acc
+            res)
+      (if (< num-open-parens n)
+        (generate-parens n (inc num-open-parens) res (str acc \())
+        res)))
+
+  (defn add-close-paren [n num-open-parens res acc]
+    (if (= (count acc) (* 2 n))
+      (if (zero? num-open-parens)
+        (conj res acc)
+        res)
+      (if (pos? num-open-parens)
+        (generate-parens n (dec num-open-parens) res (str acc \)))
+        res)))
+
+  (defn generate-parens
+    ([n]
+     (generate-parens n 0 [] ""))
+    ([n num-open-parens res acc]
+     (set (concat (add-open-paren  n num-open-parens res acc)
+                  (add-close-paren n num-open-parens res acc))))))
+
+;; (comment
+;;   "brute force"
+;;
+;;   (defn generate-parens [n]
+;;     (if-not (pos? n) #{""}
+;;             (set (for [i (range n)
+;;                        l (generate-parens i)
+;;                        r (generate-parens (- n 1 i))]
+;;                    (str "(" l ")" r))))))
+
+(comment
+  (= (generate-parens 0) #{""})                                                                                   ; true
+  (= (generate-parens 1) #{"()"})                                                                                 ; true
+  (= (generate-parens 2) #{"(())" "()()"})                                                                        ; true
+  (= (generate-parens 3) #{"(()())" "((()))" "()()()" "()(())" "(())()"})                                         ; true
+  (= [#{""} #{"()"} #{"()()" "(())"}] (map (fn [n] (generate-parens n)) [0 1 2]))                                 ; true
+  (= #{"((()))" "()()()" "()(())" "(())()" "(()())"} (generate-parens 3))                                         ; true
+  (= 16796  (count (generate-parens 10)))                                                                         ; true
+  (= 208012 (count (generate-parens 12)))                                                                         ; true
+  (= 742900 (count (generate-parens 13)))                                                                         ; true
+  (= (nth (sort (filter #(clojure.string/includes? % "(()()()())") (generate-parens 9))) 6) "(((()()()())(())))") ; true
+  (= (nth (sort (generate-parens 12)) 5000) "(((((()()()()()))))(()))"))                                          ; true
