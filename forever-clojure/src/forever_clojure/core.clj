@@ -672,6 +672,33 @@
 ;; 053 - Longest Increasing SubSeq (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  ;; see also 171
+
+  (map second                                                                                ; (0 1 2 3)
+       (apply max-key count                                                                  ; ((-1 0) (-1 1) (-1 2) (-1 3))
+              (filter #(> (count %) 1)                                                       ; (((-1 0) (-1 1) (-1 2) (-1 3)) ((-2 4) (-2 5)))
+                      (partition-by first                                                    ; (((1 1)) ((-1 0) (-1 1) (-1 2) (-1 3)) ((-5 0)) ((-2 4) (-2 5)))
+                                    (map-indexed #(list (- %2 %) %2) [1 0 1 2 3 0 4 5])))))) ; ((1 1) (-1 0) (-1 1) (-1 2) (-1 3) (-5 0) (-2 4) (-2 5))
+
+(comment
+  (defn longest-increasing-subseq [coll]
+    (let [res (->> coll
+                   (map-indexed #(list (- %2 %) %2))
+                   (partition-by first)
+                   (filter #(> (count %) 1)))]
+      (if (seq res)
+        (->> res
+             (apply max-key count res)
+             (map second))
+        res))))
+
+(comment
+  (= (longest-increasing-subseq [1 0 1 2 3 0 4 5]) [0 1 2 3]) ; true
+  (= (longest-increasing-subseq [5 6 1 3 2 7])     [5 6])     ; true
+  (= (longest-increasing-subseq [2 3 3 4 5])       [3 4 5])   ; true
+  (= (longest-increasing-subseq [7 6 5 4])         []))       ; true
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 054 - Partition a Sequence (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
