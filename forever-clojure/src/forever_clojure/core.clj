@@ -2521,6 +2521,8 @@
 ;; 168 - Infinite Matrix (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; TODO: no solution found yet
+
 (defn integers
   ([]
    (integers 0))
