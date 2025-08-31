@@ -2665,6 +2665,40 @@
 ;; 177 - Balancing Brackets (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (let [[fst & tail] "Hallo"] ; [\H "allo"]
+    [fst (apply str tail)]))
+
+(comment
+  (defn balancing-brackets
+    ([s]
+     (balancing-brackets s '()))
+    ([[fst & tail] stack]
+     (let [push conj
+           pop  rest
+           parens-map {\) \(, \} \{, \] \[}
+           s (apply str tail)]
+       (cond
+         (not fst)                   (empty? stack)
+         (contains? #{\( \{ \[} fst) (recur s (push stack fst))
+         (contains? #{\) \} \]} fst) (if (and (seq stack) (= (first stack) (parens-map fst)))
+                                       (recur s (pop stack))
+                                       false)
+         :else                       (recur s stack)))))
+
+  (balancing-brackets "This string has no brackets.")                                ; true
+  (balancing-brackets "class Test {
+                              public static void main(String[] args) {
+                                System.out.println(\"Hello world.\");
+                              }
+                            }")                                                      ; true
+  (not (balancing-brackets "(start, end]"))                                          ; true
+  (not (balancing-brackets "())"))                                                   ; true
+  (not (balancing-brackets "[ { ] } "))                                              ; true
+  (balancing-brackets "([]([(()){()}(()(()))(([[]]({}()))())]((((()()))))))")        ; true
+  (not (balancing-brackets "([]([(()){()}(()(()))(([[]]({}([)))())]((((()()))))))")) ; true
+  (not (balancing-brackets "[")))                                                    ; true
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 195 - Parentheses... Again (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
