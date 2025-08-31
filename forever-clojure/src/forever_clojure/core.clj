@@ -1010,6 +1010,45 @@
 ;; 073 - Analyze a TicTacToe Board (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+#_{:clj-kondo/ignore [:unused-binding]}
+(defn analyze-tic-tac-toe [board])
+
+(([[:e :e :e]
+   [:e :e :e]
+   [:e :e :e]] 0) 0) ; :e
+
+;; ((0 0) (0 1) (0 2)) ; row
+;; ((1 0) (1 1) (1 2))
+;; ((2 0) (2 1) (2 2))
+;; ((0 0) (1 0) (2 0)) ; cols
+;; ((0 1) (1 1) (2 1))
+;; ((0 2) (1 2) (2 2))
+;; ((0 0) (1 1) (2 2)) ; diags
+;; ((0 2) (1 1) (2 0))
+
+(comment
+  (= nil (analyze-tic-tac-toe  [[:e :e :e]
+                                [:e :e :e]
+                                [:e :e :e]]))
+  (= :x  (analyze-tic-tac-toe  [[:x :e :o]
+                                [:x :e :e]
+                                [:x :e :o]]))
+  (= :o  (analyze-tic-tac-toe  [[:e :x :e]
+                                [:o :o :o]
+                                [:x :e :x]]))
+  (= nil (analyze-tic-tac-toe  [[:x :e :o]
+                                [:x :x :e]
+                                [:o :x :o]]))
+  (= :x  (analyze-tic-tac-toe  [[:x :e :e]
+                                [:o :x :e]
+                                [:o :e :x]]))
+  (= :o  (analyze-tic-tac-toe  [[:x :e :o]
+                                [:x :o :e]
+                                [:o :e :x]]))
+  (= nil (analyze-tic-tac-toe  [[:x :o :x]
+                                [:x :o :x]
+                                [:o :x :o]])))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 074 - Filter Perfect Squares (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
