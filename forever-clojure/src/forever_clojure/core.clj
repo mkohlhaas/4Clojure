@@ -1010,42 +1010,44 @@
 ;; 073 - Analyze a TicTacToe Board (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#_{:clj-kondo/ignore [:unused-binding]}
-(defn analyze-tic-tac-toe [board])
-
-(([[:e :e :e]
-   [:e :e :e]
-   [:e :e :e]] 0) 0) ; :e
-
-;; ((0 0) (0 1) (0 2)) ; row
-;; ((1 0) (1 1) (1 2))
-;; ((2 0) (2 1) (2 2))
-;; ((0 0) (1 0) (2 0)) ; cols
-;; ((0 1) (1 1) (2 1))
-;; ((0 2) (1 2) (2 2))
-;; ((0 0) (1 1) (2 2)) ; diags
-;; ((0 2) (1 1) (2 0))
+(defn analyze-tic-tac-toe [board]
+  (let [coords ['((0 0) (0 1) (0 2))   ; rows (3)
+                '((1 0) (1 1) (1 2))
+                '((2 0) (2 1) (2 2))
+                '((0 0) (1 0) (2 0))   ; cols (3)
+                '((0 1) (1 1) (2 1))
+                '((0 2) (1 2) (2 2))
+                '((0 0) (1 1) (2 2))   ; diags (2)
+                '((0 2) (1 1) (2 0))]]
+    (loop [[[[x1 y1] [x2 y2] [x3 y3]] & tail] coords]
+      (when x1
+        (let [f ((board x1) y1)
+              s ((board x2) y2)
+              t ((board x3) y3)]
+          (if (and (= f s t) (not= f :e))
+            f
+            (recur tail)))))))
 
 (comment
-  (= nil (analyze-tic-tac-toe  [[:e :e :e]
+  (= nil (analyze-tic-tac-toe  [[:e :e :e]     ; true
                                 [:e :e :e]
                                 [:e :e :e]]))
-  (= :x  (analyze-tic-tac-toe  [[:x :e :o]
+  (= :x  (analyze-tic-tac-toe  [[:x :e :o]     ; true
                                 [:x :e :e]
                                 [:x :e :o]]))
-  (= :o  (analyze-tic-tac-toe  [[:e :x :e]
+  (= :o  (analyze-tic-tac-toe  [[:e :x :e]     ; true
                                 [:o :o :o]
                                 [:x :e :x]]))
-  (= nil (analyze-tic-tac-toe  [[:x :e :o]
+  (= nil (analyze-tic-tac-toe  [[:x :e :o]     ; true
                                 [:x :x :e]
                                 [:o :x :o]]))
-  (= :x  (analyze-tic-tac-toe  [[:x :e :e]
+  (= :x  (analyze-tic-tac-toe  [[:x :e :e]     ; true
                                 [:o :x :e]
                                 [:o :e :x]]))
-  (= :o  (analyze-tic-tac-toe  [[:x :e :o]
+  (= :o  (analyze-tic-tac-toe  [[:x :e :o]     ; true
                                 [:x :o :e]
                                 [:o :e :x]]))
-  (= nil (analyze-tic-tac-toe  [[:x :o :x]
+  (= nil (analyze-tic-tac-toe  [[:x :o :x]     ; true
                                 [:x :o :x]
                                 [:o :x :o]])))
 
