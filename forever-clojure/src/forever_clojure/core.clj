@@ -1246,9 +1246,9 @@
   ;; 1
   ;; 3 5
   ;; 8 4 6 9
-  ;; 10 11 7 9 9 10 13 14 
+  ;; 10 11 7 9 9 10 13 14
 
-  (map #(map-indexed (fn [idx item] (vector item [idx (inc idx)])) %) t)) 
+  (map #(map-indexed (fn [idx item] (vector item [idx (inc idx)])) %) t))
   ; (([1 [0 1]])
   ;  ([2 [0 1]] [4 [1 2]])
   ;  ([5 [0 1]] [1 [1 2]] [4 [2 3]])
@@ -1291,6 +1291,24 @@
                          [5 7 3 5 1 4]])
      (+ 3 4 3 2 7 1)
      20))
+
+(comment
+  ;; TODO: analyze other solutions
+
+  (defn triangle-min-path [c]
+    (let [a first
+          b rest
+          n (-> c a a)]
+      (if (= 1 (count c))
+        n
+        (+ n (min (triangle-min-path (b (map b c)))
+                  (triangle-min-path (b (map butlast c))))))))
+
+  (defn triangle-min-path [c]
+    (letfn [(next_row [row row2]
+              (map min (map + (conj (vec row) (inc (last row))) row2)
+                   (map + (cons (inc (first row)) row) row2)))]
+      (reduce min (reduce next_row c)))))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 080 - Perfect Numbers (medium)
