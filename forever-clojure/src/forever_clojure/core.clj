@@ -1243,53 +1243,47 @@
           [2 4]
           [5 1 4]
           [2 3 4 5]])
+  ;; 1
+  ;; 3 5
+  ;; 8 4 6 9
+  ;; 10 11 7 9 9 10 13 14 
 
-  (conj (map #(map-indexed (fn [idx item] (list item [idx (inc idx)])) %) t) '((0 [0]))))
-  ; (((0 [0]))
-  ;  ((1 [0 1]))
-  ;  ((2 [0 1]) (4 [1 2]))
-  ;  ((5 [0 1]) (1 [1 2]) (4 [2 3]))
-  ;  ((2 [0 1]) (3 [1 2]) (4 [2 3]) (5 [3 4])))
-
-  ;; '(((1 [0 1]))
-  ;;   ((2 [0 1]) (4 [1 2]))
-  ;;   ((5 [0 1]) (1 [1 2]) (4 [2 3]))
-  ;;   ((2 [0 1]) (3 [1 2]) (4 [2 3]) (5 [3 4])))
+  (map #(map-indexed (fn [idx item] (vector item [idx (inc idx)])) %) t)) 
+  ; (([1 [0 1]])
+  ;  ([2 [0 1]] [4 [1 2]])
+  ;  ([5 [0 1]] [1 [1 2]] [4 [2 3]])
+  ;  ([2 [0 1]] [3 [1 2]] [4 [2 3]] [5 [3 4]]))
 
 (comment
   (defn triangle-min-path [triangle]
-    (let [paths (conj
-                 (map
-                  #(map-indexed (fn [idx item] (list item [idx (inc idx)])) %)
-                  triangle)
-                 '((0 [0])))]
-      (loop [[fst-path snd-path & rest-paths] paths]
-        (if (seq snd-path)
-          (do
-            (println "first path  " fst-path)
-            (println "second path " snd-path)
-            (recur (conj rest-paths snd-path)))
-          (println "last path " fst-path)))))
-
-  (triangle-min-path t))
-  ; (out) first path   ((0 [0]))
-  ; (out) second path  ((1 [0 1]))
-  ; (out) first path   ((1 [0 1]))
-  ; (out) second path  ((2 [0 1]) (4 [1 2]))
-  ; (out) first path   ((2 [0 1]) (4 [1 2]))
-  ; (out) second path  ((5 [0 1]) (1 [1 2]) (4 [2 3]))
-  ; (out) first path   ((5 [0 1]) (1 [1 2]) (4 [2 3]))
-  ; (out) second path  ((2 [0 1]) (3 [1 2]) (4 [2 3]) (5 [3 4]))
-  ; (out) last path  ((2 [0 1]) (3 [1 2]) (4 [2 3]) (5 [3 4]))
+    (first
+     (apply min-key first
+            (let [paths (map
+                         #(map-indexed (fn [idx item] (vector item [idx (inc idx)])) %)
+                         triangle)]
+              (loop [sum-paths                 '([0 [0]])
+                     [next-paths & rest-paths] paths]
+                (if (seq next-paths)
+                  (recur (reduce
+                          (fn [acc [val1 indexes1]]
+                            (concat acc
+                                    (reduce
+                                     (fn [acc idx] (let [[val2 indexes2] ((vec next-paths) idx)] (conj acc [(+ val1 val2) indexes2])))
+                                     []
+                                     indexes1)))
+                          []
+                          sum-paths)
+                         rest-paths)
+                  sum-paths)))))))
 
 (comment
-  (= (triangle-min-path [[1]
+  (= (triangle-min-path [[1]             ; true
                          [2 4]
                          [5 1 4]
                          [2 3 4 5]])
      (+ 1 2 1 3)
      7)
-  (= (triangle-min-path [[3]
+  (= (triangle-min-path [[3]             ; true
                          [2 4]
                          [1 9 3]
                          [9 9 2 4]
