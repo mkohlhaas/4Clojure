@@ -1255,6 +1255,8 @@
   ;  ([2 [0 1]] [3 [1 2]] [4 [2 3]] [5 [3 4]]))
 
 (comment
+  "way too complicated solution"
+
   (defn triangle-min-path [triangle]
     (first
      (apply min-key first
@@ -1293,22 +1295,23 @@
      20))
 
 (comment
-  ;; TODO: analyze other solutions
+  "much better solution"
 
-  (defn triangle-min-path [c]
-    (let [a first
-          b rest
-          n (-> c a a)]
-      (if (= 1 (count c))
+  ;; triangle is just a binary tree -> task: find minimum path in a binary tree
+  ;; Dynamic Programming Approach: https://heycoach.in/blog/finding-the-minimum-path-in-a-binary-tree/
+
+  ;; left tree
+  (rest (map butlast [[1] [2 4] [5 1 4] [2 3 4 5]])) ; ((2) (5 1) (2 3 4)) 
+  ;; right tree
+  (rest (map rest    [[1] [2 4] [5 1 4] [2 3 4 5]])) ; ((4) (1 4) (3 4 5))
+
+  (defn triangle-min-path [t]
+    (let [n     (ffirst t)
+          leaf? #(= (count %) 1)]
+      (if (leaf? t)
         n
-        (+ n (min (triangle-min-path (b (map b c)))
-                  (triangle-min-path (b (map butlast c))))))))
-
-  (defn triangle-min-path [c]
-    (letfn [(next_row [row row2]
-              (map min (map + (conj (vec row) (inc (last row))) row2)
-                   (map + (cons (inc (first row)) row) row2)))]
-      (reduce min (reduce next_row c)))))
+        (+ n (min (triangle-min-path (rest (map butlast t)))       ; left  tree
+                  (triangle-min-path (rest (map rest    t))))))))) ; right tree
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 080 - Perfect Numbers (medium)
@@ -1356,6 +1359,153 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 082 - Word Chains (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+#{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"}
+
+(first #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"})
+(rest (rest #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"}))
+(#{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"} "hat")
+
+(declare substitution? insertion? deletion?)
+
+(defn change-type [w1 w2]
+  (cond
+    (=   (count #p w1) (count #p w2))  (list :substitution w1 w2 (substitution? w1 w2))
+    (= 1 #p (- (count w1) (count w2))) (list :deletion w1 w2 (deletion? w1 w2))
+    (= 1 #p (- (count w2) (count w1))) (list :insertion w1 w2 (insertion? w1 w2))
+    :else                             :false))
+
+(change-type "hat" "hot")
+
+(defn remove-nth [coll n]
+  (let [collv (vec coll)]
+    (apply str (into (subvec collv 0 n) (subvec collv (inc n))))))
+
+(remove-nth "coat" 1)
+
+(defn substitution? [w1 w2]
+  (some identity
+        (for [r (range (count w1))
+              :let [w1' (remove-nth w1 r)
+                    w2' (remove-nth w2 r)]
+              :when (= w1' w2')]
+          w2)))
+
+(defn deletion? [w1 w2]
+  (some identity
+        (for [r (range (count w1))
+              :let [w1' (remove-nth w1 r)]
+              :when (= w1' w2)]
+          w2)))
+
+(defn insertion? [w1 w2]
+  (some identity
+        (for [r (range (count w1))
+              :let [w2' (remove-nth w2 r)]
+              :when (= w1 w2')]
+          w2)))
+
+(insertion? "oat" "coat") ; "coat"
+(insertion? "cot" "coat") ; "coat"
+(insertion? "cat" "coat") ; "coat"
+(insertion? "dog" "coat") ; nil
+(insertion? "hot" "coat") ; nil
+(insertion? "hat" "coat") ; nil
+(insertion? "hog" "coat") ; nil
+
+(deletion? "coat" "oat") ; "oat"
+(deletion? "coat" "cot") ; "cot"
+(deletion? "coat" "cat") ; "cat"
+(deletion? "coat" "dog") ; nil
+(deletion? "coat" "hot") ; nil
+(deletion? "coat" "hat") ; nil
+(deletion? "coat" "hog") ; nil
+
+(substitution? "dog" "hog") ; "hog"
+(substitution? "oat" "hat") ; "hat"
+(substitution? "oat" "cat") ; "cat"
+(substitution? "cot" "hot") ; "hot"
+(substitution? "cot" "cat") ; "cat"
+(substitution? "hot" "cot") ; "cot"
+(substitution? "hot" "hat") ; "hat"
+(substitution? "hot" "hog") ; "hog"
+(substitution? "cat" "oat") ; "oat"
+(substitution? "hog" "hot") ; "hot"
+(substitution? "hat" "cat") ; "cat"
+(substitution? "hat" "oat") ; "oat"
+(substitution? "hat" "hot") ; "hot"
+(substitution? "hog" "dog") ; "dog"
+(substitution? "cat" "cot") ; "cot"
+(substitution? "cat" "hat") ; "hat"
+(substitution? "dog" "oat") ; nil
+(substitution? "dog" "cot") ; nil
+(substitution? "dog" "hot") ; nil
+(substitution? "dog" "hat") ; nil
+(substitution? "dog" "cat") ; nil
+(substitution? "oat" "dog") ; nil
+(substitution? "oat" "cot") ; nil
+(substitution? "oat" "hot") ; nil
+(substitution? "oat" "hog") ; nil
+(substitution? "cot" "dog") ; nil
+(substitution? "cot" "oat") ; nil
+(substitution? "cot" "hat") ; nil
+(substitution? "cot" "hog") ; nil
+(substitution? "hot" "dog") ; nil
+(substitution? "hot" "oat") ; nil
+(substitution? "hot" "cat") ; nil
+(substitution? "hat" "dog") ; nil
+(substitution? "hat" "cot") ; nil
+(substitution? "hat" "hog") ; nil
+(substitution? "hog" "oat") ; nil
+(substitution? "hog" "cot") ; nil
+(substitution? "hog" "hat") ; nil
+(substitution? "hog" "cat") ; nil
+(substitution? "cat" "dog") ; nil
+(substitution? "cat" "hot") ; nil
+(substitution? "cat" "hog") ; nil
+
+(filter #(not (nil? (last (first %))))
+        (for [w1 #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"}
+              w2 #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"}
+              :when (not= w1 w2)]
+          [(change-type w1 w2)]))
+
+;; [(:deletion "coat" "cat" "cat")]
+;; [(:deletion "coat" "cot" "cot")]
+;; [(:deletion "coat" "oat" "oat")]
+;; [(:insertion "cat" "coat" "coat")]
+;; [(:insertion "cot" "coat" "coat")]
+;; [(:insertion "oat" "coat" "coat")]
+;; [(:substitution "cat" "cot" "cot")]
+;; [(:substitution "cat" "hat" "hat")]
+;; [(:substitution "cat" "oat" "oat")]
+;; [(:substitution "cot" "cat" "cat")]
+;; [(:substitution "cot" "hot" "hot")]
+;; [(:substitution "dog" "hog" "hog")]
+;; [(:substitution "hat" "cat" "cat")]
+;; [(:substitution "hat" "hot" "hot")]
+;; [(:substitution "hat" "oat" "oat")]
+;; [(:substitution "hog" "dog" "dog")]
+;; [(:substitution "hog" "hot" "hot")]
+;; [(:substitution "hot" "cot" "cot")]
+;; [(:substitution "hot" "hat" "hat")]
+;; [(:substitution "hot" "hog" "hog")]
+;; [(:substitution "oat" "cat" "cat")]
+;; [(:substitution "oat" "hat" "hat")]
+
+(defn word-chains [set-words]
+  (for [w1 set-words
+        w2 set-words
+        :when (not= w1 w2)]
+    (change-type w1 w2)))
+
+(comment
+  (= true  (word-chains #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"}))
+  (= false (word-chains #{"cot" "hot" "bat" "fat"}))
+  (= false (word-chains #{"to" "top" "stop" "tops" "toss"}))
+  (= true  (word-chains #{"spout" "do" "pot" "pout" "spot" "dot"}))
+  (= true  (word-chains #{"share" "hares" "shares" "hare" "are"}))
+  (= false (word-chains #{"share" "hares" "hare" "are"})))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 083 - A HalfTruth (easy)
