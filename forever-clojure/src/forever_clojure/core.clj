@@ -1364,61 +1364,60 @@
 ;; Starting word can be any word!
 
 (comment
- (defn change-type [from-word to-word]
-   (cond
-     (=   (count from-word) (count to-word))     :substitution
-     (= 1 (- (count from-word) (count to-word))) :deletion
-     (= 1 (- (count to-word) (count from-word))) :insertion
-     :else                                       :false))
+  (defn change-type [from-word to-word]
+    (cond
+      (=   (count from-word) (count to-word))     :substitution
+      (= 1 (- (count from-word) (count to-word))) :deletion
+      (= 1 (- (count to-word) (count from-word))) :insertion
+      :else                                       :false))
 
- (defn remove-nth [coll n]
-   (let [collv (vec coll)]
-     (apply str (into (subvec collv 0 n)
-                      (subvec collv (inc n))))))
+  (defn remove-nth [coll n]
+    (let [collv (vec coll)]
+      (apply str (into (subvec collv 0 n)
+                       (subvec collv (inc n))))))
 
- (defn substitution? [from-word to-word]
-   (some identity
-         (for [r (range (count from-word))
-               :let [from-word' (remove-nth from-word r)
-                     to-word' (remove-nth to-word r)]
-               :when (= from-word' to-word')]
-           to-word)))
+  (defn substitution? [from-word to-word]
+    (some identity
+          (for [r (range (count from-word))
+                :let [from-word' (remove-nth from-word r)
+                      to-word' (remove-nth to-word r)]
+                :when (= from-word' to-word')]
+            to-word)))
 
- (defn deletion? [from-word to-word]
-   (some identity
-         (for [r (range (count from-word))
-               :let [from-word' (remove-nth from-word r)]
-               :when (= from-word' to-word)]
-           to-word)))
+  (defn deletion? [from-word to-word]
+    (some identity
+          (for [r (range (count from-word))
+                :let [from-word' (remove-nth from-word r)]
+                :when (= from-word' to-word)]
+            to-word)))
 
- (defn insertion? [from-word to-word]
-   (some identity
-         (for [r (range (count from-word))
-               :let [to-word' (remove-nth to-word r)]
-               :when (= from-word to-word')]
-           to-word)))
+  (defn insertion? [from-word to-word]
+    (some identity
+          (for [r (range (count from-word))
+                :let [to-word' (remove-nth to-word r)]
+                :when (= from-word to-word')]
+            to-word)))
 
- (defn chains [[[from-word words :as all] & rest]]
-  (cond
-    (nil? all) false
-    :else (if (seq words)
-            (let [res (filter #(not (nil? %))
-                              (map (fn [to-word]
-                                     (let [ct (change-type from-word to-word)]
-                                       (condp = ct
-                                         :substitution (substitution? from-word to-word)
-                                         :deletion     (deletion? from-word to-word)
-                                         :insertion    (insertion? from-word to-word)
-                                         :false        nil)))
-                                   words))]
-              (chains (apply conj rest (map (fn [next-word] [next-word (disj words next-word)]) res))))
-            true)))
+  (defn chains [[[from-word words :as all] & rest]]
+    (cond
+      (nil? all) false
+      :else (if (seq words)
+              (let [res (filter #(not (nil? %))
+                                (map (fn [to-word]
+                                       (let [ct (change-type from-word to-word)]
+                                         (condp = ct
+                                           :substitution (substitution? from-word to-word)
+                                           :deletion     (deletion? from-word to-word)
+                                           :insertion    (insertion? from-word to-word)
+                                           :false        nil)))
+                                     words))]
+                (chains (apply conj rest (map (fn [next-word] [next-word (disj words next-word)]) res))))
+              true)))
 
-
- (defn word-chains [words]
-  (true? (some identity
-               (for [word words] ; creates a lazy sequence
-                 (chains [[word (disj words word)]]))))))
+  (defn word-chains [words]
+    (true? (some identity
+                 (for [word words] ; creates a lazy sequence
+                   (chains [[word (disj words word)]]))))))
 
 (comment
   (= true  (word-chains #{"spout" "pot" "pout" "spot"}))                      ; true
@@ -1448,33 +1447,37 @@
 ;; 084 - Transitive Closure (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; TODO: pattern matching on map
 (comment
- (defn trans [[[key dests] & rest :as m] acc]
-  (if (seq m)
-   (let [new-map (conj m acc)
-         ways (apply clojure.set/union (map #(new-map %) dests))]
-    (trans (into {} rest) (assoc acc key (clojure.set/union (m key) ways))))
-   acc))
+  (defn trans [[[key dests] & rest :as m] acc]
+    (if (seq m)
+      (let [new-map (conj m acc)
+            ways (apply clojure.set/union (map #(new-map %) dests))]
+        (trans (into {} rest) (assoc acc key (clojure.set/union (m key) ways))))
+      acc))
 
- (defn trans-closure [s]
-  (reduce (fn[acc [k dests]](apply conj acc (map (fn[x] [k x]) dests))) #{}  
-   (trans
-     (into {} 
-         (for [[fst snd] s]
-           {fst #{snd}}))
-    {}))))
+  (defn trans-closure-rec [s]
+    (let [new-map (trans s {})]
+      (if (not= s new-map)
+        (trans-closure-rec new-map)
+        new-map)))
 
-;; TODO: more complicated test cases
+  (defn trans-closure [s]
+    (reduce (fn [acc [k dests]] (apply conj acc (map (fn [x] [k x]) dests))) #{}
+            (trans-closure-rec
+             (into {} (for [[fst snd] s]
+                        {fst #{snd}}))))))
+
 (comment
-    (= (trans-closure #{[8 4] [9 3] [4 2] [27 9]})                               ; true
-       #{[4 2] [8 4] [8 2] [9 3] [27 9] [27 3]})
-    (= (trans-closure #{["cat" "man"] ["man" "snake"] ["spider" "cat"]})         ; true
-       #{["cat" "man"] ["cat" "snake"] ["man" "snake"]
-         ["spider" "cat"] ["spider" "man"] ["spider" "snake"]})
-    (= (trans-closure #{["father" "son"] ["uncle" "cousin"] ["son" "grandson"]}) ; true
-       #{["father" "son"] ["father" "grandson"]
-         ["uncle" "cousin"] ["son" "grandson"]}))
+  (= (trans-closure #{[8 4] [9 3] [4 2] [27 9] [2 1]})                         ; true
+     #{[27 9] [27 3] [8 4] [4 2] [9 3] [4 1] [8 2] [8 1] [2 1]})
+  (= (trans-closure #{[8 4] [9 3] [4 2] [27 9]})                               ; true
+     #{[4 2] [8 4] [8 2] [9 3] [27 9] [27 3]})
+  (= (trans-closure #{["cat" "man"] ["man" "snake"] ["spider" "cat"]})         ; true
+     #{["cat" "man"] ["cat" "snake"] ["man" "snake"]
+       ["spider" "cat"] ["spider" "man"] ["spider" "snake"]})
+  (= (trans-closure #{["father" "son"] ["uncle" "cousin"] ["son" "grandson"]}) ; true
+     #{["father" "son"] ["father" "grandson"]
+       ["uncle" "cousin"] ["son" "grandson"]}))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 085 - Power Set (medium)
@@ -1570,25 +1573,25 @@
 (keep-indexed #(vector %1 %2) [[1 2] [2 3] [3 4] [4 1]]) ; ([0 [1 2]] [1 [2 3]] [2 [3 4]] [3 [4 1]])
 
 (defn remove-nth
-    [coll n]
-    (into (subvec (vec coll) 0 n) (subvec (vec coll) (inc n))))
+  [coll n]
+  (into (subvec (vec coll) 0 n) (subvec (vec coll) (inc n))))
 
 (remove-nth [[1 2] [2 3] [3 4] [4 1]] 1) ; [[1 2] [3 4] [4 1]]
 
 (defn starting-points [g]
- (into #{} (flatten g)))
+  (into #{} (flatten g)))
 
 (into #{} (flatten [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]])) ; #{:c :b :d :a}
 
 (comment
-    (= true  (graph-tour [[:a :b]]))
-    (= false (graph-tour [[:a :a] [:b :b]]))
-    (= false (graph-tour [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]]))
-    (= true  (graph-tour [[1 2] [2 3] [3 4] [4 1]]))
-    (= true  (graph-tour [[:a :b] [:a :c] [:c :b] [:a :e]
-                          [:b :e] [:a :d] [:b :d] [:c :e]
-                          [:d :e] [:c :f] [:d :f]]))
-    (= false (graph-tour [[1 2] [2 3] [2 4] [2 5]])))
+  (= true  (graph-tour [[:a :b]]))
+  (= false (graph-tour [[:a :a] [:b :b]]))
+  (= false (graph-tour [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]]))
+  (= true  (graph-tour [[1 2] [2 3] [3 4] [4 1]]))
+  (= true  (graph-tour [[:a :b] [:a :c] [:c :b] [:a :e]
+                        [:b :e] [:a :d] [:b :d] [:c :e]
+                        [:d :e] [:c :f] [:d :f]]))
+  (= false (graph-tour [[1 2] [2 3] [2 4] [2 5]])))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 090 - Cartesian Product (easy)
