@@ -1451,19 +1451,19 @@
   (defn trans [[[key dests] & rest :as m] acc]
     (if (seq m)
       (let [new-map (conj m acc)
-            ways (apply clojure.set/union (map #(new-map %) dests))]
+            ways    (apply clojure.set/union (map #(new-map %) dests))]
         (trans (into {} rest) (assoc acc key (clojure.set/union (m key) ways))))
       acc))
 
-  (defn trans-closure-rec [s]
+  (defn trans-rec [s]
     (let [new-map (trans s {})]
       (if (not= s new-map)
-        (trans-closure-rec new-map)
+        (trans-rec new-map)
         new-map)))
 
   (defn trans-closure [s]
     (reduce (fn [acc [k dests]] (apply conj acc (map (fn [x] [k x]) dests))) #{}
-            (trans-closure-rec
+            (trans-rec
              (into {} (for [[fst snd] s]
                         {fst #{snd}}))))))
 
@@ -1564,28 +1564,66 @@
 ;; 089 - Graph Tour (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;
 
-#_{:clj-kondo/ignore [:unused-binding]}
-(defn graph-tour [coll]
-  :not-implemented)
+;; (conj [] nil 1) ; [nil 1]
 
-([[1 2] [2 3] [3 4] [4 1]] 0) ; [1 2]
+;; (conj (conj [] 1) 2) ; [1 2]
 
-(keep-indexed #(vector %1 %2) [[1 2] [2 3] [3 4] [4 1]]) ; ([0 [1 2]] [1 [2 3]] [2 [3 4]] [3 [4 1]])
+;; (when false
+;;   1) ; nil
+
+;; (concat nil [1]) ; (1)
+;; (concat [1] nil) ; (1)
+;; (concat [1] [2]) ; (1 2)
+
+;; ((:b [[:a :a]] :b [[:a :a]]))
 
 (defn remove-nth
   [coll n]
   (into (subvec (vec coll) 0 n) (subvec (vec coll) (inc n))))
 
-(remove-nth [[1 2] [2 3] [3 4] [4 1]] 1) ; [[1 2] [3 4] [4 1]]
+; [1 [[1 2] [2 3] [3 4] [4 1]]
+(defn find-dests [[starting-point edges :as all]]
+  #p all
+  #p (for [[idx [start end]] (keep-indexed #(vector %1 %2) edges)
+           :let [paths (remove-nth edges idx)]
+           :when (or (= start starting-point) (= end starting-point))]
+       (concat (when (= start starting-point)
+                 [end paths])
+               (when (= end starting-point)
+                 [start paths]))))
 
-(defn starting-points [g]
-  (into #{} (flatten g)))
+(find-dests [1 [[1 2] [2 3] [3 4] [4 1]]]) ; fu
+'((2 [[2 3] [3 4] [4 1]]) (4 [[1 2] [2 3] [3 4]]))
+
+(defn graph [[[_starting-point edges :as paths] & rest]]
+  #p rest
+  (if (seq paths)
+    (if (seq edges)
+      (graph #p (apply conj rest (find-dests paths)))
+      true)
+    false))
+
+;; (conj '((:a [])) '([:a [[:a :b]]])) ; (([:a [[:a :b]]]) (:a []))
+;; (conj '([:a [[:a :b]]]) '((:a []))) ; (((:a [])) [:a [[:a :b]]])
+
+(defn graph-tour [g]
+  (graph
+   (let [starting-points (into #{} (flatten g))]
+     (for [starting-point starting-points]
+       [starting-point g]))))
+
+(graph-tour [[1 2] [2 3] [3 4] [4 1]])
+
+(keep-indexed #(vector %1 %2) [[1 2] [2 3] [3 4] [4 1]]) ; ([0 [1 2]] [1 [2 3]] [2 [3 4]] [3 [4 1]])
+
+(remove-nth [[1 2] [2 3] [3 4] [4 1]] 1) ; [[1 2] [3 4] [4 1]]
 
 (into #{} (flatten [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]])) ; #{:c :b :d :a}
 
 (comment
   (= true  (graph-tour [[:a :b]]))
   (= false (graph-tour [[:a :a] [:b :b]]))
+  ;; TODO: endless loop
   (= false (graph-tour [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]]))
   (= true  (graph-tour [[1 2] [2 3] [3 4] [4 1]]))
   (= true  (graph-tour [[:a :b] [:a :c] [:c :b] [:a :e]
