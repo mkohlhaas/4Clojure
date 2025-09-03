@@ -1561,6 +1561,35 @@
 ;; 089 - Graph Tour (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;
 
+#_{:clj-kondo/ignore [:unused-binding]}
+(defn graph-tour [coll]
+  :not-implemented)
+
+([[1 2] [2 3] [3 4] [4 1]] 0) ; [1 2]
+
+(keep-indexed #(vector %1 %2) [[1 2] [2 3] [3 4] [4 1]]) ; ([0 [1 2]] [1 [2 3]] [2 [3 4]] [3 [4 1]])
+
+(defn remove-nth
+    [coll n]
+    (into (subvec (vec coll) 0 n) (subvec (vec coll) (inc n))))
+
+(remove-nth [[1 2] [2 3] [3 4] [4 1]] 1) ; [[1 2] [3 4] [4 1]]
+
+(defn starting-points [g]
+ (into #{} (flatten g)))
+
+(into #{} (flatten [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]])) ; #{:c :b :d :a}
+
+(comment
+    (= true  (graph-tour [[:a :b]]))
+    (= false (graph-tour [[:a :a] [:b :b]]))
+    (= false (graph-tour [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]]))
+    (= true  (graph-tour [[1 2] [2 3] [3 4] [4 1]]))
+    (= true  (graph-tour [[:a :b] [:a :c] [:c :b] [:a :e]
+                          [:b :e] [:a :d] [:b :d] [:c :e]
+                          [:d :e] [:c :f] [:d :f]]))
+    (= false (graph-tour [[1 2] [2 3] [2 4] [2 5]])))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 090 - Cartesian Product (easy)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
