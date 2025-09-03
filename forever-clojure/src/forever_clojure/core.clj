@@ -1360,152 +1360,74 @@
 ;; 082 - Word Chains (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 
-#{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"}
-
-(first #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"})
-(rest (rest #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"}))
-(#{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"} "hat")
-
-(declare substitution? insertion? deletion?)
-
-(defn change-type [w1 w2]
-  (cond
-    (=   (count #p w1) (count #p w2))  (list :substitution w1 w2 (substitution? w1 w2))
-    (= 1 #p (- (count w1) (count w2))) (list :deletion w1 w2 (deletion? w1 w2))
-    (= 1 #p (- (count w2) (count w1))) (list :insertion w1 w2 (insertion? w1 w2))
-    :else                             :false))
-
-(change-type "hat" "hot")
-
-(defn remove-nth [coll n]
-  (let [collv (vec coll)]
-    (apply str (into (subvec collv 0 n) (subvec collv (inc n))))))
-
-(remove-nth "coat" 1)
-
-(defn substitution? [w1 w2]
-  (some identity
-        (for [r (range (count w1))
-              :let [w1' (remove-nth w1 r)
-                    w2' (remove-nth w2 r)]
-              :when (= w1' w2')]
-          w2)))
-
-(defn deletion? [w1 w2]
-  (some identity
-        (for [r (range (count w1))
-              :let [w1' (remove-nth w1 r)]
-              :when (= w1' w2)]
-          w2)))
-
-(defn insertion? [w1 w2]
-  (some identity
-        (for [r (range (count w1))
-              :let [w2' (remove-nth w2 r)]
-              :when (= w1 w2')]
-          w2)))
-
-(insertion? "oat" "coat") ; "coat"
-(insertion? "cot" "coat") ; "coat"
-(insertion? "cat" "coat") ; "coat"
-(insertion? "dog" "coat") ; nil
-(insertion? "hot" "coat") ; nil
-(insertion? "hat" "coat") ; nil
-(insertion? "hog" "coat") ; nil
-
-(deletion? "coat" "oat") ; "oat"
-(deletion? "coat" "cot") ; "cot"
-(deletion? "coat" "cat") ; "cat"
-(deletion? "coat" "dog") ; nil
-(deletion? "coat" "hot") ; nil
-(deletion? "coat" "hat") ; nil
-(deletion? "coat" "hog") ; nil
-
-(substitution? "dog" "hog") ; "hog"
-(substitution? "oat" "hat") ; "hat"
-(substitution? "oat" "cat") ; "cat"
-(substitution? "cot" "hot") ; "hot"
-(substitution? "cot" "cat") ; "cat"
-(substitution? "hot" "cot") ; "cot"
-(substitution? "hot" "hat") ; "hat"
-(substitution? "hot" "hog") ; "hog"
-(substitution? "cat" "oat") ; "oat"
-(substitution? "hog" "hot") ; "hot"
-(substitution? "hat" "cat") ; "cat"
-(substitution? "hat" "oat") ; "oat"
-(substitution? "hat" "hot") ; "hot"
-(substitution? "hog" "dog") ; "dog"
-(substitution? "cat" "cot") ; "cot"
-(substitution? "cat" "hat") ; "hat"
-(substitution? "dog" "oat") ; nil
-(substitution? "dog" "cot") ; nil
-(substitution? "dog" "hot") ; nil
-(substitution? "dog" "hat") ; nil
-(substitution? "dog" "cat") ; nil
-(substitution? "oat" "dog") ; nil
-(substitution? "oat" "cot") ; nil
-(substitution? "oat" "hot") ; nil
-(substitution? "oat" "hog") ; nil
-(substitution? "cot" "dog") ; nil
-(substitution? "cot" "oat") ; nil
-(substitution? "cot" "hat") ; nil
-(substitution? "cot" "hog") ; nil
-(substitution? "hot" "dog") ; nil
-(substitution? "hot" "oat") ; nil
-(substitution? "hot" "cat") ; nil
-(substitution? "hat" "dog") ; nil
-(substitution? "hat" "cot") ; nil
-(substitution? "hat" "hog") ; nil
-(substitution? "hog" "oat") ; nil
-(substitution? "hog" "cot") ; nil
-(substitution? "hog" "hat") ; nil
-(substitution? "hog" "cat") ; nil
-(substitution? "cat" "dog") ; nil
-(substitution? "cat" "hot") ; nil
-(substitution? "cat" "hog") ; nil
-
-(filter #(not (nil? (last (first %))))
-        (for [w1 #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"}
-              w2 #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"}
-              :when (not= w1 w2)]
-          [(change-type w1 w2)]))
-
-;; [(:deletion "coat" "cat" "cat")]
-;; [(:deletion "coat" "cot" "cot")]
-;; [(:deletion "coat" "oat" "oat")]
-;; [(:insertion "cat" "coat" "coat")]
-;; [(:insertion "cot" "coat" "coat")]
-;; [(:insertion "oat" "coat" "coat")]
-;; [(:substitution "cat" "cot" "cot")]
-;; [(:substitution "cat" "hat" "hat")]
-;; [(:substitution "cat" "oat" "oat")]
-;; [(:substitution "cot" "cat" "cat")]
-;; [(:substitution "cot" "hot" "hot")]
-;; [(:substitution "dog" "hog" "hog")]
-;; [(:substitution "hat" "cat" "cat")]
-;; [(:substitution "hat" "hot" "hot")]
-;; [(:substitution "hat" "oat" "oat")]
-;; [(:substitution "hog" "dog" "dog")]
-;; [(:substitution "hog" "hot" "hot")]
-;; [(:substitution "hot" "cot" "cot")]
-;; [(:substitution "hot" "hat" "hat")]
-;; [(:substitution "hot" "hog" "hog")]
-;; [(:substitution "oat" "cat" "cat")]
-;; [(:substitution "oat" "hat" "hat")]
-
-(defn word-chains [set-words]
-  (for [w1 set-words
-        w2 set-words
-        :when (not= w1 w2)]
-    (change-type w1 w2)))
+;; Every word must be used exactly once!
+;; Starting word can be any word!
 
 (comment
-  (= true  (word-chains #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"}))
-  (= false (word-chains #{"cot" "hot" "bat" "fat"}))
-  (= false (word-chains #{"to" "top" "stop" "tops" "toss"}))
-  (= true  (word-chains #{"spout" "do" "pot" "pout" "spot" "dot"}))
-  (= true  (word-chains #{"share" "hares" "shares" "hare" "are"}))
-  (= false (word-chains #{"share" "hares" "hare" "are"})))
+ (defn change-type [from-word to-word]
+   (cond
+     (=   (count from-word) (count to-word))     :substitution
+     (= 1 (- (count from-word) (count to-word))) :deletion
+     (= 1 (- (count to-word) (count from-word))) :insertion
+     :else                                       :false))
+
+ (defn remove-nth [coll n]
+   (let [collv (vec coll)]
+     (apply str (into (subvec collv 0 n)
+                      (subvec collv (inc n))))))
+
+ (defn substitution? [from-word to-word]
+   (some identity
+         (for [r (range (count from-word))
+               :let [from-word' (remove-nth from-word r)
+                     to-word' (remove-nth to-word r)]
+               :when (= from-word' to-word')]
+           to-word)))
+
+ (defn deletion? [from-word to-word]
+   (some identity
+         (for [r (range (count from-word))
+               :let [from-word' (remove-nth from-word r)]
+               :when (= from-word' to-word)]
+           to-word)))
+
+ (defn insertion? [from-word to-word]
+   (some identity
+         (for [r (range (count from-word))
+               :let [to-word' (remove-nth to-word r)]
+               :when (= from-word to-word')]
+           to-word)))
+
+ (defn chains [[[from-word words :as all] & rest]]
+  (cond
+    (nil? all) false
+    :else (if (seq words)
+            (let [res (filter #(not (nil? %))
+                              (map (fn [to-word]
+                                     (let [ct (change-type from-word to-word)]
+                                       (condp = ct
+                                         :substitution (substitution? from-word to-word)
+                                         :deletion     (deletion? from-word to-word)
+                                         :insertion    (insertion? from-word to-word)
+                                         :false        nil)))
+                                   words))]
+              (chains (apply conj rest (map (fn [next-word] [next-word (disj words next-word)]) res))))
+            true)))
+
+
+ (defn word-chains [words]
+  (true? (some identity
+               (for [word words] ; creates a lazy sequence
+                 (chains [[word (disj words word)]]))))))
+
+(comment
+  (= true  (word-chains #{"spout" "pot" "pout" "spot"}))                      ; true
+  (= true  (word-chains #{"hat" "coat" "dog" "cat" "oat" "cot" "hot" "hog"})) ; true
+  (= false (word-chains #{"cot" "hot" "bat" "fat"}))                          ; true
+  (= false (word-chains #{"to" "top" "stop" "tops" "toss"}))                  ; true
+  (= true  (word-chains #{"spout" "do" "pot" "pout" "spot" "dot"}))           ; true
+  (= true  (word-chains #{"share" "hares" "shares" "hare" "are"}))            ; true
+  (= false (word-chains #{"share" "hares" "hare" "are"})))                    ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 083 - A HalfTruth (easy)
