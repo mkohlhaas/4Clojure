@@ -1448,6 +1448,34 @@
 ;; 084 - Transitive Closure (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; TODO: pattern matching on map
+(comment
+ (defn trans [[[key dests] & rest :as m] acc]
+  (if (seq m)
+   (let [new-map (conj m acc)
+         ways (apply clojure.set/union (map #(new-map %) dests))]
+    (trans (into {} rest) (assoc acc key (clojure.set/union (m key) ways))))
+   acc))
+
+ (defn trans-closure [s]
+  (reduce (fn[acc [k dests]](apply conj acc (map (fn[x] [k x]) dests))) #{}  
+   (trans
+     (into {} 
+         (for [[fst snd] s]
+           {fst #{snd}}))
+    {}))))
+
+;; TODO: more complicated test cases
+(comment
+    (= (trans-closure #{[8 4] [9 3] [4 2] [27 9]})                               ; true
+       #{[4 2] [8 4] [8 2] [9 3] [27 9] [27 3]})
+    (= (trans-closure #{["cat" "man"] ["man" "snake"] ["spider" "cat"]})         ; true
+       #{["cat" "man"] ["cat" "snake"] ["man" "snake"]
+         ["spider" "cat"] ["spider" "man"] ["spider" "snake"]})
+    (= (trans-closure #{["father" "son"] ["uncle" "cousin"] ["son" "grandson"]}) ; true
+       #{["father" "son"] ["father" "grandson"]
+         ["uncle" "cousin"] ["son" "grandson"]}))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 085 - Power Set (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
