@@ -1624,6 +1624,38 @@
 ;; 091 - Graph Connectivity (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+#_{:clj-kondo/ignore [:unused-binding]}
+#_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
+(defn graph-connected? [g])
+
+(clojure.set/union #{[:a :a]}) ; #{[:a :a]}
+
+;; all elements
+(distinct (flatten (vec #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4]}))) ;  (2 3 6 4 5 1)
+(set      (flatten (vec #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4]}))) ; #{1 4 6 3 2 5}
+
+;; edges connected
+(count (flatten (vec #{[1 2] [2 3]})))             ; 4
+(count (distinct (flatten (vec #{[1 2] [2 3]}))))  ; 3
+
+;; connected edges
+(set (flatten (vec #{[1 2] [2 3]}))) ; (2 3 1)
+
+;; edges not connected
+(count (flatten (vec #{[3 1] [4 5]})))             ; 4
+(count (distinct (flatten (vec #{[3 1] [4 5]}))))  ; 4
+
+;; for-list-comprehension
+;; only collect connected edges
+
+(comment
+    (= true  (graph-connected? #{[:a :a]}))
+    (= true  (graph-connected? #{[:a :b]}))
+    (= false (graph-connected? #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4]}))
+    (= true  (graph-connected? #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4] [3 4]}))
+    (= false (graph-connected? #{[:a :b] [:b :c] [:c :d] [:x :y] [:d :a] [:b :e]}))
+    (= true  (graph-connected? #{[:a :b] [:b :c] [:c :d] [:x :y] [:d :a] [:b :e] [:x :a]})))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 092 - Read Roman numerals (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
