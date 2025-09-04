@@ -1565,33 +1565,33 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
- (defn remove-nth
-   [coll n]
-   (into (subvec (vec coll) 0 n) (subvec (vec coll) (inc n))))
+  (defn remove-nth
+    [coll n]
+    (into (subvec (vec coll) 0 n) (subvec (vec coll) (inc n))))
 
- (defn find-dests [[starting-point edges]]
-   (concat
+  (defn find-dests [[starting-point edges]]
+    (concat
      (for [[idx [start end]] (keep-indexed #(vector %1 %2) edges)
            :let [paths (remove-nth edges idx)]
            :when (= start starting-point)]
-        [end paths])
+       [end paths])
      (for [[idx [start end]] (keep-indexed #(vector %1 %2) edges)
            :let [paths (remove-nth edges idx)]
            :when (= end starting-point)]
-        [start paths])))
+       [start paths])))
 
- (defn graph [[[_starting-point edges :as paths] & rest]]
-   (if (seq paths)
-     (if (seq edges)
-       (graph (apply conj rest (find-dests paths)))
-       true)
-     false))
+  (defn graph [[[_starting-point edges :as paths] & rest]]
+    (if (seq paths)
+      (if (seq edges)
+        (graph (apply conj rest (find-dests paths)))
+        true)
+      false))
 
- (defn graph-tour [g]
-   (graph
-    (let [starting-points (into #{} (flatten g))]
-      (for [starting-point starting-points]
-        [starting-point g])))))
+  (defn graph-tour [g]
+    (graph
+     (let [starting-points (into #{} (flatten g))]
+       (for [starting-point starting-points]
+         [starting-point g])))))
 
 (comment
   (= true  (graph-tour [[:a :b]]))                                                 ; true
@@ -1600,8 +1600,8 @@
   (= false (graph-tour [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]])) ; true
   (= true  (graph-tour [[1 2] [2 3] [3 4] [4 1]]))                                 ; true
   (= true  (graph-tour [[:a :b] [:a :c] [:c :b] [:a :e]                            ; true
-                        [:b :e] [:a :d] [:b :d] [:c :e] 
-                        [:d :e] [:c :f] [:d :f]])) 
+                        [:b :e] [:a :d] [:b :d] [:c :e]
+                        [:d :e] [:c :f] [:d :f]]))
   (= false (graph-tour [[1 2] [2 3] [2 4] [2 5]])))                                ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1649,12 +1649,12 @@
 ;; only collect connected edges
 
 (comment
-    (= true  (graph-connected? #{[:a :a]}))
-    (= true  (graph-connected? #{[:a :b]}))
-    (= false (graph-connected? #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4]}))
-    (= true  (graph-connected? #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4] [3 4]}))
-    (= false (graph-connected? #{[:a :b] [:b :c] [:c :d] [:x :y] [:d :a] [:b :e]}))
-    (= true  (graph-connected? #{[:a :b] [:b :c] [:c :d] [:x :y] [:d :a] [:b :e] [:x :a]})))
+  (= true  (graph-connected? #{[:a :a]}))
+  (= true  (graph-connected? #{[:a :b]}))
+  (= false (graph-connected? #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4]}))
+  (= true  (graph-connected? #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4] [3 4]}))
+  (= false (graph-connected? #{[:a :b] [:b :c] [:c :d] [:x :y] [:d :a] [:b :e]}))
+  (= true  (graph-connected? #{[:a :b] [:b :c] [:c :d] [:x :y] [:d :a] [:b :e] [:x :a]})))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 092 - Read Roman numerals (hard)
