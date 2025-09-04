@@ -1564,72 +1564,45 @@
 ;; 089 - Graph Tour (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (conj [] nil 1) ; [nil 1]
+(comment
+ (defn remove-nth
+   [coll n]
+   (into (subvec (vec coll) 0 n) (subvec (vec coll) (inc n))))
 
-;; (conj (conj [] 1) 2) ; [1 2]
-
-;; (when false
-;;   1) ; nil
-
-;; (concat nil [1]) ; (1)
-;; (concat [1] nil) ; (1)
-;; (concat [1] [2]) ; (1 2)
-
-;; ((:b [[:a :a]] :b [[:a :a]]))
-
-(defn remove-nth
-  [coll n]
-  (into (subvec (vec coll) 0 n) (subvec (vec coll) (inc n))))
-
-; [1 [[1 2] [2 3] [3 4] [4 1]]
-(defn find-dests [[starting-point edges :as all]]
-  #p all
-  #p (for [[idx [start end]] (keep-indexed #(vector %1 %2) edges)
+ (defn find-dests [[starting-point edges]]
+   (concat
+     (for [[idx [start end]] (keep-indexed #(vector %1 %2) edges)
            :let [paths (remove-nth edges idx)]
-           :when (or (= start starting-point) (= end starting-point))]
-       (concat (when (= start starting-point)
-                 [end paths])
-               (when (= end starting-point)
-                 [start paths]))))
+           :when (= start starting-point)]
+        [end paths])
+     (for [[idx [start end]] (keep-indexed #(vector %1 %2) edges)
+           :let [paths (remove-nth edges idx)]
+           :when (= end starting-point)]
+        [start paths])))
 
-(find-dests [1 [[1 2] [2 3] [3 4] [4 1]]]) ; fu
-'((2 [[2 3] [3 4] [4 1]]) (4 [[1 2] [2 3] [3 4]]))
+ (defn graph [[[_starting-point edges :as paths] & rest]]
+   (if (seq paths)
+     (if (seq edges)
+       (graph (apply conj rest (find-dests paths)))
+       true)
+     false))
 
-(defn graph [[[_starting-point edges :as paths] & rest]]
-  #p rest
-  (if (seq paths)
-    (if (seq edges)
-      (graph #p (apply conj rest (find-dests paths)))
-      true)
-    false))
-
-;; (conj '((:a [])) '([:a [[:a :b]]])) ; (([:a [[:a :b]]]) (:a []))
-;; (conj '([:a [[:a :b]]]) '((:a []))) ; (((:a [])) [:a [[:a :b]]])
-
-(defn graph-tour [g]
-  (graph
-   (let [starting-points (into #{} (flatten g))]
-     (for [starting-point starting-points]
-       [starting-point g]))))
-
-(graph-tour [[1 2] [2 3] [3 4] [4 1]])
-
-(keep-indexed #(vector %1 %2) [[1 2] [2 3] [3 4] [4 1]]) ; ([0 [1 2]] [1 [2 3]] [2 [3 4]] [3 [4 1]])
-
-(remove-nth [[1 2] [2 3] [3 4] [4 1]] 1) ; [[1 2] [3 4] [4 1]]
-
-(into #{} (flatten [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]])) ; #{:c :b :d :a}
+ (defn graph-tour [g]
+   (graph
+    (let [starting-points (into #{} (flatten g))]
+      (for [starting-point starting-points]
+        [starting-point g])))))
 
 (comment
-  (= true  (graph-tour [[:a :b]]))
-  (= false (graph-tour [[:a :a] [:b :b]]))
-  ;; TODO: endless loop
-  (= false (graph-tour [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]]))
-  (= true  (graph-tour [[1 2] [2 3] [3 4] [4 1]]))
-  (= true  (graph-tour [[:a :b] [:a :c] [:c :b] [:a :e]
-                        [:b :e] [:a :d] [:b :d] [:c :e]
-                        [:d :e] [:c :f] [:d :f]]))
-  (= false (graph-tour [[1 2] [2 3] [2 4] [2 5]])))
+  (= true  (graph-tour [[:a :b]]))                                                 ; true
+  (= false (graph-tour [[:a :a] [:b :b]]))                                         ; true
+  (= true  (graph-tour [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d]]))                 ; true
+  (= false (graph-tour [[:a :b] [:a :b] [:a :c] [:c :a] [:a :d] [:b :d] [:c :d]])) ; true
+  (= true  (graph-tour [[1 2] [2 3] [3 4] [4 1]]))                                 ; true
+  (= true  (graph-tour [[:a :b] [:a :c] [:c :b] [:a :e]                            ; true
+                        [:b :e] [:a :d] [:b :d] [:c :e] 
+                        [:d :e] [:c :f] [:d :f]])) 
+  (= false (graph-tour [[1 2] [2 3] [2 4] [2 5]])))                                ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 090 - Cartesian Product (easy)
