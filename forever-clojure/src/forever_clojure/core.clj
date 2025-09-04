@@ -1624,37 +1624,41 @@
 ;; 091 - Graph Connectivity (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#_{:clj-kondo/ignore [:unused-binding]}
-#_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
-(defn graph-connected? [g])
-
-(clojure.set/union #{[:a :a]}) ; #{[:a :a]}
-
-;; all elements
-(distinct (flatten (vec #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4]}))) ;  (2 3 6 4 5 1)
-(set      (flatten (vec #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4]}))) ; #{1 4 6 3 2 5}
-
-;; edges connected
-(count (flatten (vec #{[1 2] [2 3]})))             ; 4
-(count (distinct (flatten (vec #{[1 2] [2 3]}))))  ; 3
-
-;; connected edges
-(set (flatten (vec #{[1 2] [2 3]}))) ; (2 3 1)
-
-;; edges not connected
-(count (flatten (vec #{[3 1] [4 5]})))             ; 4
-(count (distinct (flatten (vec #{[3 1] [4 5]}))))  ; 4
-
-;; for-list-comprehension
-;; only collect connected edges
-
 (comment
-  (= true  (graph-connected? #{[:a :a]}))
-  (= true  (graph-connected? #{[:a :b]}))
-  (= false (graph-connected? #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4]}))
-  (= true  (graph-connected? #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4] [3 4]}))
-  (= false (graph-connected? #{[:a :b] [:b :c] [:c :d] [:x :y] [:d :a] [:b :e]}))
-  (= true  (graph-connected? #{[:a :b] [:b :c] [:c :d] [:x :y] [:d :a] [:b :e] [:x :a]})))
+  (defn connect-edges [edges]
+    (set
+     (for [edge1 edges
+           edge2 edges
+           :when (not= edge1 edge2)
+           :let [e1      (vec edge1)
+                 e2      (vec edge2)
+                 e_1_2   (concat e1 e2)
+                 e_1_2_d (distinct e_1_2)
+                 c1      (count e_1_2)
+                 c2      (count e_1_2_d)]
+           :when (< c2 c1)]
+       (set e_1_2_d))))
+
+  (defn connect-edges-rec [g]
+    (let [conncected-edges (connect-edges g)
+          num-elements-g   (count (distinct (flatten (map vec g))))
+          num-elements-c   (count (distinct (flatten (map vec conncected-edges))))
+          num-edges        (count g)]
+      (cond
+        (= 1 num-edges)                      true
+        (= 0 num-edges)                      false
+        (not= num-elements-g num-elements-c) false
+        :else (connect-edges-rec conncected-edges))))
+
+  (defn graph-connected? [g]
+    (connect-edges-rec (set (map set g))))
+
+  (= true  (graph-connected? #{[:a :a]}))                                                  ; true
+  (= true  (graph-connected? #{[:a :b]}))                                                  ; true
+  (= false (graph-connected? #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4]}))                      ; true
+  (= true  (graph-connected? #{[1 2] [2 3] [3 1] [4 5] [5 6] [6 4] [3 4]}))                ; true
+  (= false (graph-connected? #{[:a :b] [:b :c] [:c :d] [:x :y] [:d :a] [:b :e]}))          ; true
+  (= true  (graph-connected? #{[:a :b] [:b :c] [:c :d] [:x :y] [:d :a] [:b :e] [:x :a]}))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 092 - Read Roman numerals (hard)
