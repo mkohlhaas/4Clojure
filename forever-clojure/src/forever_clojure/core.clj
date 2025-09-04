@@ -1664,6 +1664,34 @@
 ;; 092 - Read Roman numerals (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(comment
+  (defn read-roman-numerals [r]
+    (->> (reverse (.toUpperCase r))
+         (map {\M 1000 \D 500 \C 100 \L 50 \X 10 \V 5 \I 1})
+         (partition-by identity)
+         (map (partial apply +))
+         (reduce #(if (< %1 %2) (+ %1 %2) (- %1 %2))))))
+
+(comment
+  (reverse (.toUpperCase "MMMCMXCIX"))                                              ; (\X \I \C \X \M \C \M \M \M)
+  (map {\M 1000 \D 500 \C 100 \L 50 \X 10 \V 5 \I 1} '(\X \I \C \X \M \C \M \M \M)) ; (10 1 100 10 1000 100 1000 1000 1000)
+  (partition-by identity '(10 1 100 10 1000 100 1000 1000 1000))                    ; ((10) (1) (100) (10) (1000) (100) (1000 1000 1000))
+  (map (partial apply +) '((10) (1) (100) (10) (1000) (100) (1000 1000 1000)))      ; (10 1 100 10 1000 100 3000)
+  (reductions #(if (< %1 %2) (+ %1 %2) (- %1 %2)) '(10 1 100 10 1000 100 3000)))     ; (10 9 109 99 1099 999 3999)
+
+(comment
+  "testing"
+
+  ;; built-in pretty printing for roman numerals stolen from Common Lisp
+  (def arabic->roman
+    (partial clojure.pprint/cl-format nil "~@R"))
+
+  ;; How many errors? 0!
+  (->> (range 1 4000)
+       (map (fn [n] [n (read-roman-numerals (arabic->roman n))]))
+       (filter (fn [[n1 n2]] (not= n1 n2)))
+       count))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 093 - Partially Flatten a Sequence (medium)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
