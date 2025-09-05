@@ -1925,9 +1925,31 @@
 ;; 100 - Least Common Multiple (easy)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn least-common-multiple [& nums])
+
+(comment
+    (== (least-common-multiple 2 3) 6)
+    (== (least-common-multiple 5 3 7) 105)
+    (== (least-common-multiple 1/3 2/5) 2)
+    (== (least-common-multiple 3/4 1/6) 3/2)
+    (== (least-common-multiple 7 5/7 2 3/5) 210))
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 101 - Levenshtein Distance (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn levenshtein-distance [s1 s2])
+
+(comment
+    (= (levenshtein-distance "kitten" "sitting") 3)
+    (= (levenshtein-distance "closure" "clojure") (__ "clojure" "closure") 1)
+    (= (levenshtein-distance "xyx" "xyyyx") 2)
+    (= (levenshtein-distance "" "123456") 6)
+    (= (levenshtein-distance "Clojure" "Clojure") (__ "" "") (__ [] []) 0)
+    (= (levenshtein-distance [1 2 3 4] [0 2 3 4 5]) 2)
+    (= (levenshtein-distance '(:a :b :c :d) '(:a :d)) 2)
+    (= (levenshtein-distance "ttttattttctg" "tcaaccctaccat") 10)
+    (= (levenshtein-distance "gaattctaatctc" "caaacaaaaaattt") 9))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 102 - intoCamelCase (medium)
