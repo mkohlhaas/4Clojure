@@ -1301,7 +1301,7 @@
   ;; Dynamic Programming Approach: https://heycoach.in/blog/finding-the-minimum-path-in-a-binary-tree/
 
   ;; left tree
-  (rest (map butlast [[1] [2 4] [5 1 4] [2 3 4 5]])) ; ((2) (5 1) (2 3 4)) 
+  (rest (map butlast [[1] [2 4] [5 1 4] [2 3 4 5]])) ; ((2) (5 1) (2 3 4))
   ;; right tree
   (rest (map rest    [[1] [2 4] [5 1 4] [2 3 4 5]])) ; ((4) (1 4) (3 4 5))
 
@@ -1728,12 +1728,12 @@
 (defn board-to-set [board rows cols]
  (set
     (for [row (range rows)
-          col (range cols)            
+          col (range cols)
           :when (= \# (nth (board row) col))]
       [row col])))
 
 (defn set-to-board [s rows cols]
- (apply map str 
+ (apply map str
   (partition rows
    (for [col (range cols)
          row (range rows)]
@@ -1987,10 +1987,10 @@
 (comment
     (= (levenshtein-distance "Clojure" "Clojure")                  ; true
        (levenshtein-distance "" "")
-       (levenshtein-distance [] []) 
+       (levenshtein-distance [] [])
        0)
     (= (levenshtein-distance "closure" "clojure")                  ; true
-       (levenshtein-distance "clojure" "closure") 
+       (levenshtein-distance "clojure" "closure")
        1)
     (= (levenshtein-distance "xyx" "xyyyx") 2)                     ; true
     (= (levenshtein-distance [1 2 3 4] [0 2 3 4 5]) 2)             ; true
@@ -2142,6 +2142,31 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 106 - Number Maze (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn number-maze
+  ([start end]
+   (number-maze [start end 0]))
+  ([[start end num-steps] & rest]
+   #p start
+   #p end
+   #p num-steps
+   #p rest
+   (when (= #p start end)
+      num-steps)))
+
+
+(def double-me #(* % 2))
+(def halve-me  #(/ % 2))
+(def add-2-me  #(+ % 2))
+
+
+(comment
+    (= 0 (number-maze 1  1))
+    (= 2 (number-maze 3  12))
+    (= 2 (number-maze 12 3))
+    (= 2 (number-maze 5  9))
+    (= 4 (number-maze 9  12))
+    (= 8 (number-maze 9  2)))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 107 - Simple closures (easy)
