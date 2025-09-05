@@ -1728,20 +1728,20 @@
          cell)))
 
 (defn board-to-set [board rows cols]
- (set
-    (for [row (range rows)
-          col (range cols)
-          :when (= \# (nth (board row) col))]
-      [row col])))
+  (set
+   (for [row (range rows)
+         col (range cols)
+         :when (= \# (nth (board row) col))]
+     [row col])))
 
 (defn set-to-board [s rows cols]
- (apply map str
-  (partition rows
-   (for [col (range cols)
-         row (range rows)]
-       (if (contains? s [row col])
-          \#
-          \space)))))
+  (apply map str
+         (partition rows
+                    (for [col (range cols)
+                          row (range rows)]
+                      (if (contains? s [row col])
+                        \#
+                        \space)))))
 
 (defn game-of-life [board]
   (let [rows (count board)
@@ -1928,21 +1928,21 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn gcd [a b]
-      (if (zero? b)
-        a
-        (recur b, (mod a b))))
+  (if (zero? b)
+    a
+    (recur b, (mod a b))))
 
 (defn lcm [a b]
-      (/ (* a b) (gcd a b)))
+  (/ (* a b) (gcd a b)))
 
 (defn least-common-multiple [& n] (reduce lcm n))
 
 (comment
-    (== (least-common-multiple 2 3) 6)            ; true
-    (== (least-common-multiple 5 3 7) 105)        ; true
-    (== (least-common-multiple 1/3 2/5) 2)        ; true
-    (== (least-common-multiple 3/4 1/6) 3/2)      ; true
-    (== (least-common-multiple 7 5/7 2 3/5) 210)) ; true
+  (== (least-common-multiple 2 3) 6)            ; true
+  (== (least-common-multiple 5 3 7) 105)        ; true
+  (== (least-common-multiple 1/3 2/5) 2)        ; true
+  (== (least-common-multiple 3/4 1/6) 3/2)      ; true
+  (== (least-common-multiple 7 5/7 2 3/5) 210)) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 101 - Levenshtein Distance (hard)
@@ -1955,52 +1955,52 @@
 
 (comment
  ;; slow (recursive)
- (defn levenshtein-distance [w1 w2]
-   (let [len1 (count w1)
-         len2 (count w2)]
-     (cond (zero? len1) len2
-           (zero? len2) len1
-           :else
-           (let [cost (if (= (first w1) (first w2)) 0 1)]
-             (min (inc    (levenshtein-distance (rest w1) w2))
-                  (inc    (levenshtein-distance w1        (rest w2)))
-                  (+ cost (levenshtein-distance (rest w1) (rest w2))))))))
+  (defn levenshtein-distance [w1 w2]
+    (let [len1 (count w1)
+          len2 (count w2)]
+      (cond (zero? len1) len2
+            (zero? len2) len1
+            :else
+            (let [cost (if (= (first w1) (first w2)) 0 1)]
+              (min (inc    (levenshtein-distance (rest w1) w2))
+                   (inc    (levenshtein-distance w1        (rest w2)))
+                   (+ cost (levenshtein-distance (rest w1) (rest w2))))))))
 
  ;; fast (constructive = dynamic programming)
- (defn levenshtein-distance [w1 w2]
-  (let [num-cols (inc (count w1))
-        num-rows (inc (count w2))]
-    (letfn [(distance [prev-row cur-row row-idx col-idx]
-             (let [ch1 (nth w1 (dec col-idx))
-                   ch2 (nth w2 (dec row-idx))]
-              (min (inc (nth prev-row col-idx))                              ; insertion
-                   (inc (last cur-row))                                      ; deletion
-                   (+ (nth prev-row (dec col-idx)) (if (= ch1 ch2) 0 1)))))] ; substitution
-       (loop [row-idx  1
-              prev-row (range (inc (count w1)))]
+  (defn levenshtein-distance [w1 w2]
+    (let [num-cols (inc (count w1))
+          num-rows (inc (count w2))]
+      (letfn [(distance [prev-row cur-row row-idx col-idx]
+                (let [ch1 (nth w1 (dec col-idx))
+                      ch2 (nth w2 (dec row-idx))]
+                  (min (inc (nth prev-row col-idx))                              ; insertion
+                       (inc (last cur-row))                                      ; deletion
+                       (+ (nth prev-row (dec col-idx)) (if (= ch1 ch2) 0 1)))))] ; substitution
+        (loop [row-idx  1
+               prev-row (range (inc (count w1)))]
           (if (= row-idx num-rows)
             (last prev-row)
             (let [next-prev-row (reduce (fn [cur-row col-idx]
-                                           (conj cur-row (distance prev-row cur-row row-idx col-idx)))
+                                          (conj cur-row (distance prev-row cur-row row-idx col-idx)))
                                         [row-idx]
                                         (range 1 num-cols))]
               (recur (inc row-idx) next-prev-row))))))))
 
 (comment
-    (= (levenshtein-distance "Clojure" "Clojure")                  ; true
-       (levenshtein-distance "" "")
-       (levenshtein-distance [] [])
-       0)
-    (= (levenshtein-distance "closure" "clojure")                  ; true
-       (levenshtein-distance "clojure" "closure")
-       1)
-    (= (levenshtein-distance "xyx" "xyyyx") 2)                     ; true
-    (= (levenshtein-distance [1 2 3 4] [0 2 3 4 5]) 2)             ; true
-    (= (levenshtein-distance '(:a :b :c :d) '(:a :d)) 2)           ; true
-    (= (levenshtein-distance "kitten" "sitting") 3)                ; true
-    (= (levenshtein-distance "" "123456") 6)                       ; true
-    (= (levenshtein-distance "gaattctaatctc" "caaacaaaaaattt") 9)  ; true
-    (= (levenshtein-distance "ttttattttctg" "tcaaccctaccat") 10))  ; true
+  (= (levenshtein-distance "Clojure" "Clojure")                  ; true
+     (levenshtein-distance "" "")
+     (levenshtein-distance [] [])
+     0)
+  (= (levenshtein-distance "closure" "clojure")                  ; true
+     (levenshtein-distance "clojure" "closure")
+     1)
+  (= (levenshtein-distance "xyx" "xyyyx") 2)                     ; true
+  (= (levenshtein-distance [1 2 3 4] [0 2 3 4 5]) 2)             ; true
+  (= (levenshtein-distance '(:a :b :c :d) '(:a :d)) 2)           ; true
+  (= (levenshtein-distance "kitten" "sitting") 3)                ; true
+  (= (levenshtein-distance "" "123456") 6)                       ; true
+  (= (levenshtein-distance "gaattctaatctc" "caaacaaaaaattt") 9)  ; true
+  (= (levenshtein-distance "ttttattttctg" "tcaaccctaccat") 10))  ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 102 - intoCamelCase (medium)
@@ -2146,31 +2146,31 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
- (defn number-maze-rec [seen [[start end num-steps] & rest]]
+  (defn number-maze-rec [seen [[start end num-steps] & rest]]
     (if (= start end)
-       num-steps
-       (recur
-        (conj seen start) 
-        (let [dble (* start 2)
-              half (/ start 2)
-              add2 (+ start 2)]
+      num-steps
+      (recur
+       (conj seen start)
+       (let [dble (* start 2)
+             half (/ start 2)
+             add2 (+ start 2)]
          (concat rest (when-not (contains? seen dble)
                         [[dble end (inc num-steps)]])
-                      (when (and (not (contains? seen half)) (even? start))
-                        [[half end (inc num-steps)]])
-                      (when-not (contains? seen add2)
-                        [[add2 end (inc num-steps)]])))))) 
+                 (when (and (not (contains? seen half)) (even? start))
+                   [[half end (inc num-steps)]])
+                 (when-not (contains? seen add2)
+                   [[add2 end (inc num-steps)]]))))))
 
- (defn number-maze [start end]
-     (number-maze-rec #{} [[start end 0]])))
+  (defn number-maze [start end]
+    (number-maze-rec #{} [[start end 0]])))
 
 (comment
-    (= 0 (number-maze 1  1))  ; true
-    (= 2 (number-maze 3  12)) ; true
-    (= 2 (number-maze 12 3))  ; true
-    (= 2 (number-maze 5  9))  ; true
-    (= 4 (number-maze 9  12)) ; true
-    (= 8 (number-maze 9  2))) ; true
+  (= 0 (number-maze 1  1))  ; true
+  (= 2 (number-maze 3  12)) ; true
+  (= 2 (number-maze 12 3))  ; true
+  (= 2 (number-maze 5  9))  ; true
+  (= 4 (number-maze 9  12)) ; true
+  (= 8 (number-maze 9  2))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 107 - Simple closures (easy)
@@ -2235,19 +2235,19 @@
 (defn crossword-puzzle [word board])
 
 (comment
-    (= true  (crossword-puzzle "the" ["_ # _ _ e"]))
-    (= false (crossword-puzzle "the" ["c _ _ _"
-                                      "d _ # e"
-                                      "r y _ _"]))
-    (= true  (crossword-puzzle "joy" ["c _ _ _"
-                                      "d _ # e"
-                                      "r y _ _"]))
-    (= false (crossword-puzzle "joy" ["c o n j"
-                                      "_ _ y _"
-                                      "r _ _ #"]))
-    (= true  (crossword-puzzle "clojure" ["_ _ _ # j o y"
-                                          "_ _ o _ _ _ _"
-                                          "_ _ f _ # _ _"])))
+  (= true  (crossword-puzzle "the" ["_ # _ _ e"]))
+  (= false (crossword-puzzle "the" ["c _ _ _"
+                                    "d _ # e"
+                                    "r y _ _"]))
+  (= true  (crossword-puzzle "joy" ["c _ _ _"
+                                    "d _ # e"
+                                    "r y _ _"]))
+  (= false (crossword-puzzle "joy" ["c o n j"
+                                    "_ _ y _"
+                                    "r _ _ #"]))
+  (= true  (crossword-puzzle "clojure" ["_ _ _ # j o y"
+                                        "_ _ o _ _ _ _"
+                                        "_ _ f _ # _ _"])))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 112 - Sequs Horribilis (medium)
@@ -2355,50 +2355,152 @@
 ;; 117 - For Science! (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#_{:clj-kondo/ignore [:unused-binding]}
-#_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
-(defn for-science [maze])
-
-(defn von-neumann-neighborhood [[x y] max-x max-y]
-    (filter (fn [[x y]] (and (>= x 0)
-                             (>= y 0)
-                             (<= x max-x)
-                             (<= y max-y)))
-            [[x (- y 1)] [x (+ y 1)]
-             [(- x 1) y] [(+ x 1) y]])) 
-
-(von-neumann-neighborhood [5 5] 5 5) ; ([5 4] [4 5])
-(von-neumann-neighborhood [0 1] 5 5) ; ([0 0] [0 2] [1 1])
-(von-neumann-neighborhood [0 0] 5 5) ; ([0 1] [1 0])
-(von-neumann-neighborhood [2 2] 5 5) ; ([2 1] [2 3] [1 2] [3 2])
+(defn von-neumann-neighborhood [[x y] max-x-dim max-y-dim]
+  (filter (fn [[x y]] (and (>= x 0)
+                           (>= y 0)
+                           (< x max-x-dim)
+                           (< y max-y-dim)))
+          [[x       (- y 1)]
+           [x       (+ y 1)]
+           [(- x 1) y]
+           [(+ x 1) y]]))
 
 (defn find-item [maze item]
-  (let [max-x (count maze)
-        max-y (count (maze 0))]
-    (for [x (range max-x)
-          y (range max-y)
+  (let [max-x-dim (count maze)
+        max-y-dim (count (maze 0))]
+    (for [x (range max-x-dim)
+          y (range max-y-dim)
           :when (= item (get-in maze [x y]))]
       [x y])))
 
 (defn find-mouse [maze]
-  (find-item maze \M))
+  (first (find-item maze \M)))
 
 (defn find-cheese [maze]
-  (find-item maze \C))
+  (first (find-item maze \C)))
+
+(defn candidates [maze pos]
+  (let [max-x-dim (count maze)
+        max-y-dim (count (maze 0))
+        neighbors (von-neumann-neighborhood pos max-x-dim max-y-dim)]
+    (filter #(= (get-in maze %) \space) neighbors)))
+
+(def sample-maze ["#######"
+                  "# #   #"
+                  "####  #"
+                  "#M # C#"
+                  "#######"])
+
+(map identity (candidates sample-maze [1 1]))
+(apply conj [1 2 3] nil)
+
+(defn cheese-found? [maze pos]
+  (first
+   (let [max-x-dim (count maze)
+         max-y-dim (count (maze 0))]
+     (for [neighbor (von-neumann-neighborhood pos max-x-dim max-y-dim)
+           :when (= \C (get-in maze neighbor))]
+       true))))
+
+(defn for-science-rec [seen [maze & rest :as all]]
+  ;; #p "begin"
+  ;; #p (find-mouse maze)
+  ;; #p maze
+  ;; #p (count all)
+  ;; #p (count seen)
+  (if (seq maze)
+    (if (seen maze)
+      (for-science-rec seen rest)
+      (let [mouse (find-mouse maze)]
+        (if (cheese-found? maze mouse)
+          true
+          (for-science-rec
+           (conj seen mouse)
+           (apply conj rest
+                  (map #(assoc-in
+                         (assoc-in maze % \M) ; update mouse position
+                         mouse \#)            ; build a wall where mouse has been
+                       (candidates maze mouse)))))))
+    false))
+
+(defn for-science [maze]
+  (for-science-rec #{} [(vec (map #(vec (map identity %)) maze))]))
+
+(comment
+  (= true  (for-science ["M   C"]))       ; true
+  (= true  (for-science ["C   M"]))       ; true
+  (= true  (for-science ["C   M"          ; true
+                         "     "]))
+  (= false (for-science ["M # C"]))       ; true
+  (= true  (for-science ["#######"        ; true
+                         "#     #"
+                         "#  #  #"
+                         "#M # C#"
+                         "#######"]))
+  (= false (for-science ["########"       ; true
+                         "#M  #  #"
+                         "#   #  #"
+                         "# # #  #"
+                         "#   #  #"
+                         "#  #   #"
+                         "#  # # #"
+                         "#  #   #"
+                         "#  #  C#"
+                         "########"]))
+  (= false (for-science ["M     "         ; true
+                         "      "
+                         "      "
+                         "      "
+                         "    ##"
+                         "    #C"]))
+  (= false (for-science ["      "         ; true
+                         " M    "
+                         "      "
+                         "      "
+                         "    ##"
+                         "    #C"]))
+  (= true  (for-science ["C######"        ; true
+                         " #     "
+                         " #   # "
+                         " #   #M"
+                         "     # "]))
+  (= true  (for-science ["C# # # #"       ; true
+                         "        "
+                         "# # # # "
+                         "        "
+                         " # # # #"
+                         "        "
+                         "# # # #M"])))
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(von-neumann-neighborhood [5 5] 5 5) ; ()
+(von-neumann-neighborhood [4 4] 5 5) ; ([4 3] [3 4])
+(von-neumann-neighborhood [3 3] 5 5) ; ([3 2] [3 4] [2 3] [4 3])
+(von-neumann-neighborhood [0 1] 5 5) ; ([0 0] [0 2] [1 1])
+(von-neumann-neighborhood [0 0] 5 5) ; ([0 1] [1 0])
+(von-neumann-neighborhood [2 2] 5 5) ; ([2 1] [2 3] [1 2] [3 2])
+
+;; pos = [x y]
+(cheese-found? sample-maze [2 5]) ; true
+(cheese-found? sample-maze [3 1]) ; nil
+
+(candidates sample-maze (find-mouse  sample-maze)) ; ([3 2] [2 1])
+(candidates sample-maze (find-cheese sample-maze)) ; ([3 4] [2 5])
 
 (find-mouse  ["#######"
               "#     #"
               "#  #  #"
               "#M # C#"
               "#######"])
-; ([3 1])
+; [3 1]
 
 (find-cheese ["#######"
               "#     #"
               "#  #  #"
               "#M # C#"
-              "#######"]) 
-; ([3 5])
+              "#######"])
+; [3 5]
 
 (get-in ["#######"
          "#     #"
@@ -2435,43 +2537,6 @@
          "#  #  #"
          "#M # C#"
          "#######"] [5 5]) ; nil
-
-(comment
-    (= true  (for-science ["M   C"]))
-    (= false (for-science ["M # C"]))
-    (= true  (for-science ["#######"
-                           "#     #"
-                           "#  #  #"
-                           "#M # C#"
-                           "#######"]))
-    (= false (for-science ["########"
-                           "#M  #  #"
-                           "#   #  #"
-                           "# # #  #"
-                           "#   #  #"
-                           "#  #   #"
-                           "#  # # #"
-                           "#  #   #"
-                           "#  #  C#"
-                           "########"]))
-    (= false (for-science ["M     "
-                           "      "
-                           "      "
-                           "      "
-                           "    ##"
-                           "    #C"]))
-    (= true  (for-science ["C######"
-                           " #     "
-                           " #   # "
-                           " #   #M"
-                           "     # "]))
-    (= true  (for-science ["C# # # #"
-                           "        "
-                           "# # # # "
-                           "        "
-                           " # # # #"
-                           "        "
-                           "# # # #M"])))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 118 - Reimplement Map (easy)
