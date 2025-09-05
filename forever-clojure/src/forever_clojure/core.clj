@@ -1713,6 +1713,8 @@
 ;; 094 - Game of Life (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; [Inventing Game of Life (John Conway) - Numberphile](https://www.youtube.com/watch?v=R9Plq-D1gEk)
+
 (defn moore-neighborhood [[x y]]
   (for [dx [-1 0 1]
         dy [-1 0 1]
@@ -2352,6 +2354,124 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 117 - For Science! (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+#_{:clj-kondo/ignore [:unused-binding]}
+#_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
+(defn for-science [maze])
+
+(defn von-neumann-neighborhood [[x y] max-x max-y]
+    (filter (fn [[x y]] (and (>= x 0)
+                             (>= y 0)
+                             (<= x max-x)
+                             (<= y max-y)))
+            [[x (- y 1)] [x (+ y 1)]
+             [(- x 1) y] [(+ x 1) y]])) 
+
+(von-neumann-neighborhood [5 5] 5 5) ; ([5 4] [4 5])
+(von-neumann-neighborhood [0 1] 5 5) ; ([0 0] [0 2] [1 1])
+(von-neumann-neighborhood [0 0] 5 5) ; ([0 1] [1 0])
+(von-neumann-neighborhood [2 2] 5 5) ; ([2 1] [2 3] [1 2] [3 2])
+
+(defn find-item [maze item]
+  (let [max-x (count maze)
+        max-y (count (maze 0))]
+    (for [x (range max-x)
+          y (range max-y)
+          :when (= item (get-in maze [x y]))]
+      [x y])))
+
+(defn find-mouse [maze]
+  (find-item maze \M))
+
+(defn find-cheese [maze]
+  (find-item maze \C))
+
+(find-mouse  ["#######"
+              "#     #"
+              "#  #  #"
+              "#M # C#"
+              "#######"])
+; ([3 1])
+
+(find-cheese ["#######"
+              "#     #"
+              "#  #  #"
+              "#M # C#"
+              "#######"]) 
+; ([3 5])
+
+(get-in ["#######"
+         "#     #"
+         "#  #  #"
+         "#M # C#"
+         "#######"] [0 5]) ; \#
+
+(get-in ["#######"
+         "#     #"
+         "#  #  #"
+         "#M # C#"
+         "#######"] [1 5]) ; \space
+
+(get-in ["#######"
+         "#     #"
+         "#  #  #"
+         "#M # C#"
+         "#######"] [2 5]) ; \space
+
+(get-in ["#######"
+         "#     #"
+         "#  #  #"
+         "#M # C#"
+         "#######"] [3 5]) ; \C
+
+(get-in ["#######"
+         "#     #"
+         "#  #  #"
+         "#M # C#"
+         "#######"] [4 5]) ; \#
+
+(get-in ["#######"
+         "#     #"
+         "#  #  #"
+         "#M # C#"
+         "#######"] [5 5]) ; nil
+
+(comment
+    (= true  (for-science ["M   C"]))
+    (= false (for-science ["M # C"]))
+    (= true  (for-science ["#######"
+                           "#     #"
+                           "#  #  #"
+                           "#M # C#"
+                           "#######"]))
+    (= false (for-science ["########"
+                           "#M  #  #"
+                           "#   #  #"
+                           "# # #  #"
+                           "#   #  #"
+                           "#  #   #"
+                           "#  # # #"
+                           "#  #   #"
+                           "#  #  C#"
+                           "########"]))
+    (= false (for-science ["M     "
+                           "      "
+                           "      "
+                           "      "
+                           "    ##"
+                           "    #C"]))
+    (= true  (for-science ["C######"
+                           " #     "
+                           " #   # "
+                           " #   #M"
+                           "     # "]))
+    (= true  (for-science ["C# # # #"
+                           "        "
+                           "# # # # "
+                           "        "
+                           " # # # #"
+                           "        "
+                           "# # # #M"])))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 118 - Reimplement Map (easy)
