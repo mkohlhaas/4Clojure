@@ -2143,30 +2143,32 @@
 ;; 106 - Number Maze (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn number-maze
-  ([start end]
-   (number-maze [start end 0]))
-  ([[start end num-steps] & rest]
-   #p start
-   #p end
-   #p num-steps
-   #p rest
-   (when (= #p start end)
-      num-steps)))
+(comment
+ (defn number-maze-rec [seen [[start end num-steps] & rest]]
+    (if (= start end)
+       num-steps
+       (number-maze-rec
+        (conj seen [start end])
+        (let [dble (* start 2)
+              half (/ start 2)
+              add2 (+ start 2)]
+         (concat rest (when (not (contains? seen [dble end]))
+                        [[dble end (inc num-steps)]])
+                      (when (and (not (contains? seen [half end])) (even? start))
+                        [[half end (inc num-steps)]])
+                      (when (not (contains? seen [add2 end]))
+                        [[add2 end (inc num-steps)]])))))) 
 
-
-(def double-me #(* % 2))
-(def halve-me  #(/ % 2))
-(def add-2-me  #(+ % 2))
-
+ (defn number-maze [start end]
+     (number-maze-rec #{} [[start end 0]])))
 
 (comment
-    (= 0 (number-maze 1  1))
-    (= 2 (number-maze 3  12))
-    (= 2 (number-maze 12 3))
-    (= 2 (number-maze 5  9))
-    (= 4 (number-maze 9  12))
-    (= 8 (number-maze 9  2)))
+    (= 0 (number-maze 1  1))  ; true
+    (= 2 (number-maze 3  12)) ; true
+    (= 2 (number-maze 12 3))  ; true
+    (= 2 (number-maze 5  9))  ; true
+    (= 4 (number-maze 9  12)) ; true
+    (= 8 (number-maze 9  2))) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 107 - Simple closures (easy)
