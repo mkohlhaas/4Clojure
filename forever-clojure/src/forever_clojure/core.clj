@@ -1946,18 +1946,59 @@
 ;; 101 - Levenshtein Distance (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn levenshtein-distance [s1 s2])
+;; https://en.wikipedia.org/wiki/Levenshtein_distance
+;; https://de.wikipedia.org/wiki/Levenshtein-Distanz
+
+;; https://python-course.eu/applications-python/levenshtein-distance.php
 
 (comment
-    (= (levenshtein-distance "kitten" "sitting") 3)
-    (= (levenshtein-distance "closure" "clojure") (__ "clojure" "closure") 1)
-    (= (levenshtein-distance "xyx" "xyyyx") 2)
-    (= (levenshtein-distance "" "123456") 6)
-    (= (levenshtein-distance "Clojure" "Clojure") (__ "" "") (__ [] []) 0)
-    (= (levenshtein-distance [1 2 3 4] [0 2 3 4 5]) 2)
-    (= (levenshtein-distance '(:a :b :c :d) '(:a :d)) 2)
-    (= (levenshtein-distance "ttttattttctg" "tcaaccctaccat") 10)
-    (= (levenshtein-distance "gaattctaatctc" "caaacaaaaaattt") 9))
+ ;; slow (recursive)
+ (defn levenshtein-distance [w1 w2]
+   (let [len1 (count w1)
+         len2 (count w2)]
+     (cond (zero? len1) len2
+           (zero? len2) len1
+           :else
+           (let [cost (if (= (first w1) (first w2)) 0 1)]
+             (min (inc    (levenshtein-distance (rest w1) w2))
+                  (inc    (levenshtein-distance w1        (rest w2)))
+                  (+ cost (levenshtein-distance (rest w1) (rest w2))))))))
+
+ ;; fast (constructive = dynamic programming)
+ (defn levenshtein-distance [w1 w2]
+  (let [num-cols (inc (count w1))
+        num-rows (inc (count w2))]
+    (letfn [(distance [prev-row cur-row row-idx col-idx]
+             (let [ch1 (nth w1 (dec col-idx))
+                   ch2 (nth w2 (dec row-idx))]
+              (min (inc (nth prev-row col-idx))                              ; insertion
+                   (inc (last cur-row))                                      ; deletion
+                   (+ (nth prev-row (dec col-idx)) (if (= ch1 ch2) 0 1)))))] ; substitution
+       (loop [row-idx  1
+              prev-row (range (inc (count w1)))]
+          (if (= row-idx num-rows)
+            (last prev-row)
+            (let [next-prev-row (reduce (fn [cur-row col-idx]
+                                           (conj cur-row (distance prev-row cur-row row-idx col-idx)))
+                                        [row-idx]
+                                        (range 1 num-cols))]
+              (recur (inc row-idx) next-prev-row))))))))
+
+(comment
+    (= (levenshtein-distance "Clojure" "Clojure")                  ; true
+       (levenshtein-distance "" "")
+       (levenshtein-distance [] []) 
+       0)
+    (= (levenshtein-distance "closure" "clojure")                  ; true
+       (levenshtein-distance "clojure" "closure") 
+       1)
+    (= (levenshtein-distance "xyx" "xyyyx") 2)                     ; true
+    (= (levenshtein-distance [1 2 3 4] [0 2 3 4 5]) 2)             ; true
+    (= (levenshtein-distance '(:a :b :c :d) '(:a :d)) 2)           ; true
+    (= (levenshtein-distance "kitten" "sitting") 3)                ; true
+    (= (levenshtein-distance "" "123456") 6)                       ; true
+    (= (levenshtein-distance "gaattctaatctc" "caaacaaaaaattt") 9)  ; true
+    (= (levenshtein-distance "ttttattttctg" "tcaaccctaccat") 10))  ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 102 - intoCamelCase (medium)
