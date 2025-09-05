@@ -1721,28 +1721,36 @@
 
 (defn step [set-of-cells]
   (set (for [[cell count] (frequencies (mapcat moore-neighborhood set-of-cells))
-             :when (or (= 3 count)
-                       (and (= 2 count) (contains? set-of-cells cell)))]
+             :when (or (= count 3)
+                       (and (= count 2) (contains? set-of-cells cell)))]
          cell)))
 
-(defn print-world
-  ([set-of-cells] (print-world set-of-cells 10))
-  ([set-of-cells world-size]
-   (let [r (range 0 (+ 1 world-size))]
-     (clojure.pprint/pprint (for [y r] (apply str (for [x r] (if (set-of-cells [x y]) \# \.))))))))
+(defn board-to-set [board rows cols]
+ (set
+    (for [row (range rows)
+          col (range cols)            
+          :when (= \# (nth (board row) col))]
+      [row col])))
 
-(defn run-life [world-size num-steps set-of-cells]
-  (loop [s num-steps
-         cells set-of-cells]
-    (print-world cells world-size)
-    (when (< 0 s)
-      (recur (- s 1) (step cells)))))
+(defn set-to-board [s rows cols]
+ (apply map str 
+  (partition rows
+   (for [col (range cols)
+         row (range rows)]
+       (if (contains? s [row col])
+          \#
+          \space)))))
 
-;; (def *blinker* #{[1 2] [2 2] [3 2]})
-;; (def *glider* #{[1 0] [2 1] [0 2] [1 2] [2 2]})
+(defn game-of-life [board]
+  (let [rows (count board)
+        cols (count (board 0))]
+    (-> board
+        (board-to-set rows cols)
+        step
+        (set-to-board rows cols))))
 
 (comment
-  (= (run-life
+  (= (game-of-life ; true
       ["      "
        " ##   "
        " ##   "
@@ -1756,7 +1764,7 @@
       "   ## "
       "      "])
 
-  (= (run-life
+  (= (game-of-life ; true
       ["     "
        "     "
        " ### "
@@ -1768,7 +1776,7 @@
       "  #  "
       "     "])
 
-  (= (run-life
+  (= (game-of-life ; true
       ["      "
        "      "
        "  ### "
