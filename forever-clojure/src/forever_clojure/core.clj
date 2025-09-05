@@ -1925,14 +1925,22 @@
 ;; 100 - Least Common Multiple (easy)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn least-common-multiple [& nums])
+(defn gcd [a b]
+      (if (zero? b)
+        a
+        (recur b, (mod a b))))
+
+(defn lcm [a b]
+      (/ (* a b) (gcd a b)))
+
+(defn least-common-multiple [& n] (reduce lcm n))
 
 (comment
-    (== (least-common-multiple 2 3) 6)
-    (== (least-common-multiple 5 3 7) 105)
-    (== (least-common-multiple 1/3 2/5) 2)
-    (== (least-common-multiple 3/4 1/6) 3/2)
-    (== (least-common-multiple 7 5/7 2 3/5) 210))
+    (== (least-common-multiple 2 3) 6)            ; true
+    (== (least-common-multiple 5 3 7) 105)        ; true
+    (== (least-common-multiple 1/3 2/5) 2)        ; true
+    (== (least-common-multiple 3/4 1/6) 3/2)      ; true
+    (== (least-common-multiple 7 5/7 2 3/5) 210)) ; true
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 101 - Levenshtein Distance (hard)
