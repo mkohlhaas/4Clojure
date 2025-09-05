@@ -2147,16 +2147,16 @@
  (defn number-maze-rec [seen [[start end num-steps] & rest]]
     (if (= start end)
        num-steps
-       (number-maze-rec
-        (conj seen [start end])
+       (recur
+        (conj seen start) 
         (let [dble (* start 2)
               half (/ start 2)
               add2 (+ start 2)]
-         (concat rest (when (not (contains? seen [dble end]))
+         (concat rest (when-not (contains? seen dble)
                         [[dble end (inc num-steps)]])
-                      (when (and (not (contains? seen [half end])) (even? start))
+                      (when (and (not (contains? seen half)) (even? start))
                         [[half end (inc num-steps)]])
-                      (when (not (contains? seen [add2 end]))
+                      (when-not (contains? seen add2)
                         [[add2 end (inc num-steps)]])))))) 
 
  (defn number-maze [start end]
@@ -2228,6 +2228,24 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 111 - Crossword puzzle (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+#_{:clj-kondo/ignore [:unused-binding]}
+(defn crossword-puzzle [word board])
+
+(comment
+    (= true  (crossword-puzzle "the" ["_ # _ _ e"]))
+    (= false (crossword-puzzle "the" ["c _ _ _"
+                                      "d _ # e"
+                                      "r y _ _"]))
+    (= true  (crossword-puzzle "joy" ["c _ _ _"
+                                      "d _ # e"
+                                      "r y _ _"]))
+    (= false (crossword-puzzle "joy" ["c o n j"
+                                      "_ _ y _"
+                                      "r _ _ #"]))
+    (= true  (crossword-puzzle "clojure" ["_ _ _ # j o y"
+                                          "_ _ o _ _ _ _"
+                                          "_ _ f _ # _ _"])))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 112 - Sequs Horribilis (medium)
