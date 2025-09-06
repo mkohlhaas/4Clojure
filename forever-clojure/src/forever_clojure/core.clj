@@ -2356,66 +2356,66 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
- (defn von-neumann-neighborhood [[x y] max-x-dim max-y-dim]
-   (filter (fn [[x y]] (and (>= x 0)
-                            (>= y 0)
-                            (< x max-x-dim)
-                            (< y max-y-dim)))
-           [[x       (- y 1)]
-            [x       (+ y 1)]
-            [(- x 1) y]
-            [(+ x 1) y]]))
+  (defn von-neumann-neighborhood [[x y] max-x-dim max-y-dim]
+    (filter (fn [[x y]] (and (>= x 0)
+                             (>= y 0)
+                             (< x max-x-dim)
+                             (< y max-y-dim)))
+            [[x       (- y 1)]
+             [x       (+ y 1)]
+             [(- x 1) y]
+             [(+ x 1) y]]))
 
- (defn find-items [maze item]
-   (let [max-x-dim (count maze)
-         max-y-dim (count (maze 0))]
-     (for [x (range max-x-dim)
-           y (range max-y-dim)
-           :when (= item (get-in maze [x y]))]
-       [x y])))
+  (defn find-items [maze item]
+    (let [max-x-dim (count maze)
+          max-y-dim (count (maze 0))]
+      (for [x (range max-x-dim)
+            y (range max-y-dim)
+            :when (= item (get-in maze [x y]))]
+        [x y])))
 
- (defn find-mouse [maze]
-   (first (find-items maze \M)))
+  (defn find-mouse [maze]
+    (first (find-items maze \M)))
 
- (defn find-cheese [maze]
-  (first (find-items maze \C)))
+  (defn find-cheese [maze]
+    (first (find-items maze \C)))
 
- (defn candidates [maze]
-   (let [max-x-dim (count maze)
-         max-y-dim (count (maze 0))
-         mouse     (find-mouse maze)
-         neighbors (von-neumann-neighborhood mouse max-x-dim max-y-dim)]
-     (filter #(= (get-in maze %) \space) neighbors)))
-
- (defn cheese-found? [maze]
-   (first
+  (defn candidates [maze]
     (let [max-x-dim (count maze)
           max-y-dim (count (maze 0))
-          mouse-pos (find-mouse maze)]
-      (for [neighbor (von-neumann-neighborhood mouse-pos max-x-dim max-y-dim)
-            :when (= \C (get-in maze neighbor))]
-        true))))
+          mouse     (find-mouse maze)
+          neighbors (von-neumann-neighborhood mouse max-x-dim max-y-dim)]
+      (filter #(= (get-in maze %) \space) neighbors)))
 
- (defn new-mouse-positions [maze seen]
-   (let [mouse-pos (find-mouse maze)]
-     (filter (fn[x] (not= x nil))
-           (map #(when (not (contains? seen %))
-                  (assoc-in (assoc-in maze % \M) mouse-pos \space))
-             (candidates maze)))))
+  (defn cheese-found? [maze]
+    (first
+     (let [max-x-dim (count maze)
+           max-y-dim (count (maze 0))
+           mouse-pos (find-mouse maze)]
+       (for [neighbor (von-neumann-neighborhood mouse-pos max-x-dim max-y-dim)
+             :when (= \C (get-in maze neighbor))]
+         true))))
 
- (defn for-science
-   ([maze]
-    (for-science [(vec (map #(vec (map identity %)) maze))] #{}))
-   ([[maze & rest] seen]
-    (if (seq maze)
-     (if (cheese-found? maze)
-       true
-       (if (seen maze)
-         (for-science rest seen)
-         (for-science
-          (apply conj rest (new-mouse-positions maze seen))
-          (conj seen (find-mouse maze)))))
-     false))))
+  (defn new-mouse-positions [maze seen]
+    (let [mouse-pos (find-mouse maze)]
+      (filter (fn [x] (not= x nil))
+              (map #(when (not (contains? seen %))
+                      (assoc-in (assoc-in maze % \M) mouse-pos \space))
+                   (candidates maze)))))
+
+  (defn for-science
+    ([maze]
+     (for-science [(vec (map #(vec (map identity %)) maze))] #{}))
+    ([[maze & rest] seen]
+     (if (seq maze)
+       (if (cheese-found? maze)
+         true
+         (if (seen maze)
+           (for-science rest seen)
+           (for-science
+            (apply conj rest (new-mouse-positions maze seen))
+            (conj seen (find-mouse maze)))))
+       false))))
 
 (comment
   (= true  (for-science ["M   C"]))     ; true
@@ -2497,60 +2497,60 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
- (defn win? [piece board]
-   (let [coords ['((0 0) (0 1) (0 2))   ; rows (3)
-                 '((1 0) (1 1) (1 2))
-                 '((2 0) (2 1) (2 2))
-                 '((0 0) (1 0) (2 0))   ; cols (3)
-                 '((0 1) (1 1) (2 1))
-                 '((0 2) (1 2) (2 2))
-                 '((0 0) (1 1) (2 2))   ; diag (2)
-                 '((0 2) (1 1) (2 0))]]
-     (loop [[[a b c :as cs] & tail] coords]
-       (if cs
-         (let [fst (get-in board a)
-               snd (get-in board b)
-               trd (get-in board c)]
-           (if (= piece fst snd trd)
-             true
-             (recur tail)))
-         false))))
+  (defn win? [piece board]
+    (let [coords ['((0 0) (0 1) (0 2))   ; rows (3)
+                  '((1 0) (1 1) (1 2))
+                  '((2 0) (2 1) (2 2))
+                  '((0 0) (1 0) (2 0))   ; cols (3)
+                  '((0 1) (1 1) (2 1))
+                  '((0 2) (1 2) (2 2))
+                  '((0 0) (1 1) (2 2))   ; diag (2)
+                  '((0 2) (1 1) (2 0))]]
+      (loop [[[a b c :as cs] & tail] coords]
+        (if cs
+          (let [fst (get-in board a)
+                snd (get-in board b)
+                trd (get-in board c)]
+            (if (= piece fst snd trd)
+              true
+              (recur tail)))
+          false))))
 
- (defn find-holes [board]
-   (for [x (range 3)
-         y (range 3)
-         :let [p (get-in board [x y])]
-         :when (= p :e)]
-     [x y]))
+  (defn find-holes [board]
+    (for [x (range 3)
+          y (range 3)
+          :let [p (get-in board [x y])]
+          :when (= p :e)]
+      [x y]))
 
- (defn win [piece board]
-   (let [holes (find-holes board)]
-     (set
+  (defn win [piece board]
+    (let [holes (find-holes board)]
+      (set
        (filter
-         (fn [hole] (win? piece (assoc-in board hole piece)))
-         holes)))))
+        (fn [hole] (win? piece (assoc-in board hole piece)))
+        holes)))))
 
 (comment
-    (= (win :x [[:o :e :e]     ; true
-                [:o :x :o]
-                [:x :x :e]])
-       #{[2 2] [0 1] [0 2]})
-    (= (win :x [[:x :o :o]     ; true
-                [:x :x :e]
-                [:e :o :e]])
-       #{[2 2] [1 2] [2 0]})
-    (= (win :x [[:x :e :x]     ; true
-                [:o :x :o]
-                [:e :o :e]])
-       #{[2 2] [0 1] [2 0]})
-    (= (win :x [[:x :x :o]     ; true
-                [:e :e :e]
-                [:e :e :e]])
-       #{})
-    (= (win :o [[:x :x :o]     ; true
-                [:o :e :o]
-                [:x :e :e]])
-       #{[2 2] [1 1]}))
+  (= (win :x [[:o :e :e]     ; true
+              [:o :x :o]
+              [:x :x :e]])
+     #{[2 2] [0 1] [0 2]})
+  (= (win :x [[:x :o :o]     ; true
+              [:x :x :e]
+              [:e :o :e]])
+     #{[2 2] [1 2] [2 0]})
+  (= (win :x [[:x :e :x]     ; true
+              [:o :x :o]
+              [:e :o :e]])
+     #{[2 2] [0 1] [2 0]})
+  (= (win :x [[:x :x :o]     ; true
+              [:e :e :e]
+              [:e :e :e]])
+     #{})
+  (= (win :o [[:x :x :o]     ; true
+              [:o :e :o]
+              [:x :e :e]])
+     #{[2 2] [1 1]}))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 120 - Sum of square of digits (easy)
@@ -2675,43 +2675,43 @@
 (defn reversi [board color])
 
 (comment
-    (= {[1 3] #{[1 2]}
-        [0 2] #{[1 2]}
-        [3 1] #{[2 1]}
-        [2 0] #{[2 1]}}
-       (reversi '[[e e e e]
-                  [e w b e]
-                  [e b w e]
-                  [e e e e]] 'w))
-    (= {[3 2] #{[2 2]}
-        [3 0] #{[2 1]}
-        [1 0] #{[1 1]}}
-       (reversi '[[e e e e]
-                  [e w b e]
-                  [w w w e]
-                  [e e e e]] 'b))
-    (= {[0 3] #{[1 2]}
-        [1 3] #{[1 2]}
-        [3 3] #{[2 2]}
-        [2 3] #{[2 2]}}
-       (reversi '[[e e e e]
-                  [e w b e]
-                  [w w b e]
-                  [e e b e]] 'w))
-    (= {[0 3] #{[2 1] [1 2]}
-        [1 3] #{[1 2]}
-        [2 3] #{[2 1] [2 2]}}
-       (reversi '[[e e w e]
-                  [b b w e]
-                  [b w w e]
-                  [b w w w]] 'b))
-    (= {[0 3] #{[2 1] [1 2]}
-        [1 3] #{[1 2]}
-        [2 3] #{[2 1] [2 2]}}
-       (reversi '[[e e w e]
-                  [b b w e]
-                  [b w w e]
-                  [b w w w]] 'b)))
+  (= {[1 3] #{[1 2]}
+      [0 2] #{[1 2]}
+      [3 1] #{[2 1]}
+      [2 0] #{[2 1]}}
+     (reversi '[[e e e e]
+                [e w b e]
+                [e b w e]
+                [e e e e]] 'w))
+  (= {[3 2] #{[2 2]}
+      [3 0] #{[2 1]}
+      [1 0] #{[1 1]}}
+     (reversi '[[e e e e]
+                [e w b e]
+                [w w w e]
+                [e e e e]] 'b))
+  (= {[0 3] #{[1 2]}
+      [1 3] #{[1 2]}
+      [3 3] #{[2 2]}
+      [2 3] #{[2 2]}}
+     (reversi '[[e e e e]
+                [e w b e]
+                [w w b e]
+                [e e b e]] 'w))
+  (= {[0 3] #{[2 1] [1 2]}
+      [1 3] #{[1 2]}
+      [2 3] #{[2 1] [2 2]}}
+     (reversi '[[e e w e]
+                [b b w e]
+                [b w w e]
+                [b w w w]] 'b))
+  (= {[0 3] #{[2 1] [1 2]}
+      [1 3] #{[1 2]}
+      [2 3] #{[2 1] [2 2]}}
+     (reversi '[[e e w e]
+                [b b w e]
+                [b w w e]
+                [b w w w]] 'b)))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 125 - Gus' Quinundrum (hard)
