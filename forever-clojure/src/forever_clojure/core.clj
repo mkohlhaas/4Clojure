@@ -1017,15 +1017,15 @@
                 '((0 0) (1 0) (2 0))   ; cols (3)
                 '((0 1) (1 1) (2 1))
                 '((0 2) (1 2) (2 2))
-                '((0 0) (1 1) (2 2))   ; diags (2)
+                '((0 0) (1 1) (2 2))   ; diag (2)
                 '((0 2) (1 1) (2 0))]]
-    (loop [[[[x1 y1] [x2 y2] [x3 y3]] & tail] coords]
-      (when x1
-        (let [f ((board x1) y1)
-              s ((board x2) y2)
-              t ((board x3) y3)]
-          (if (and (= f s t) (not= f :e))
-            f
+    (loop [[[a b c :as cs] & tail] coords]
+      (when cs
+        (let [fst (get-in board a)
+              snd (get-in board b)
+              trd (get-in board c)]
+          (if (and (= fst snd trd) (not= fst :e))
+            fst
             (recur tail)))))))
 
 (comment
@@ -2400,7 +2400,7 @@
    (let [mouse-pos (find-mouse maze)]
      (filter (fn[x] (not= x nil))
            (map #(when (not (contains? seen %))
-                  (assoc-in (assoc-in maze % \M) mouse-pos \space))      
+                  (assoc-in (assoc-in maze % \M) mouse-pos \space))
              (candidates maze)))))
 
  (defn for-science
@@ -2421,7 +2421,7 @@
   (= true  (for-science ["M   C"]))     ; true
   (= true  (for-science ["C   M"]))     ; true
   (= true  (for-science ["C   M"        ; true
-                         "     "]))     
+                         "     "]))
   (= false (for-science ["M # C"]))     ; true
   (= true  (for-science ["#######"      ; true
                          "#     #"
@@ -2453,12 +2453,12 @@
                          "      "
                          "      "
                          "    ##"
-                         "    #C"])) 
+                         "    #C"]))
   (= true  (for-science ["C######"      ; true
                          " #     "
                          " #   # "
                          " #   #M"
-                         "     # "])) 
+                         "     # "]))
   (= true  (for-science ["C# # # #"     ; true
                          "        "
                          "# # # # "
@@ -2495,6 +2495,61 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 119 - Win at TicTacToe (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn win? [piece board]
+  (let [coords ['((0 0) (0 1) (0 2))   ; rows (3)
+                '((1 0) (1 1) (1 2))
+                '((2 0) (2 1) (2 2))
+                '((0 0) (1 0) (2 0))   ; cols (3)
+                '((0 1) (1 1) (2 1))
+                '((0 2) (1 2) (2 2))
+                '((0 0) (1 1) (2 2))   ; diag (2)
+                '((0 2) (1 1) (2 0))]]
+    (loop [[[a b c :as cs] & tail] coords]
+      (if cs
+        (let [fst (get-in board a)
+              snd (get-in board b)
+              trd (get-in board c)]
+          (if (= piece fst snd trd)
+            true
+            (recur tail)))
+        false))))
+
+(defn find-holes [board]
+  (for [x (range 3)
+        y (range 3)
+        :let [p (get-in board [x y])]
+        :when (= p :e)]
+    [x y]))
+
+(defn win [piece board]
+  (let [holes (find-holes board)]
+    (set
+      (filter
+        (fn [hole] (win? piece (assoc-in board hole piece)))
+        holes))))
+
+(comment
+    (= (win :x [[:o :e :e]     ; true
+                [:o :x :o]
+                [:x :x :e]])
+       #{[2 2] [0 1] [0 2]})
+    (= (win :x [[:x :o :o]     ; true
+                [:x :x :e]
+                [:e :o :e]])
+       #{[2 2] [1 2] [2 0]})
+    (= (win :x [[:x :e :x]     ; true
+                [:o :x :o]
+                [:e :o :e]])
+       #{[2 2] [0 1] [2 0]})
+    (= (win :x [[:x :x :o]     ; true
+                [:e :e :e]
+                [:e :e :e]])
+       #{})
+    (= (win :o [[:x :x :o]     ; true
+                [:o :e :o]
+                [:x :e :e]])
+       #{[2 2] [1 1]}))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 120 - Sum of square of digits (easy)
