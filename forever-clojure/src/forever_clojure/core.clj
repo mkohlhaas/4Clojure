@@ -2355,89 +2355,80 @@
 ;; 117 - For Science! (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn von-neumann-neighborhood [[x y] max-x-dim max-y-dim]
-  (filter (fn [[x y]] (and (>= x 0)
-                           (>= y 0)
-                           (< x max-x-dim)
-                           (< y max-y-dim)))
-          [[x       (- y 1)]
-           [x       (+ y 1)]
-           [(- x 1) y]
-           [(+ x 1) y]]))
+(comment
+ (defn von-neumann-neighborhood [[x y] max-x-dim max-y-dim]
+   (filter (fn [[x y]] (and (>= x 0)
+                            (>= y 0)
+                            (< x max-x-dim)
+                            (< y max-y-dim)))
+           [[x       (- y 1)]
+            [x       (+ y 1)]
+            [(- x 1) y]
+            [(+ x 1) y]]))
 
-(defn find-item [maze item]
-  (let [max-x-dim (count maze)
-        max-y-dim (count (maze 0))]
-    (for [x (range max-x-dim)
-          y (range max-y-dim)
-          :when (= item (get-in maze [x y]))]
-      [x y])))
-
-(defn find-mouse [maze]
-  (first (find-item maze \M)))
-
-(defn find-cheese [maze]
-  (first (find-item maze \C)))
-
-(defn candidates [maze pos]
-  (let [max-x-dim (count maze)
-        max-y-dim (count (maze 0))
-        neighbors (von-neumann-neighborhood pos max-x-dim max-y-dim)]
-    (filter #(= (get-in maze %) \space) neighbors)))
-
-(def sample-maze ["#######"
-                  "# #   #"
-                  "####  #"
-                  "#M # C#"
-                  "#######"])
-
-(map identity (candidates sample-maze [1 1]))
-(apply conj [1 2 3] nil)
-
-(defn cheese-found? [maze pos]
-  (first
+ (defn find-items [maze item]
    (let [max-x-dim (count maze)
          max-y-dim (count (maze 0))]
-     (for [neighbor (von-neumann-neighborhood pos max-x-dim max-y-dim)
-           :when (= \C (get-in maze neighbor))]
-       true))))
+     (for [x (range max-x-dim)
+           y (range max-y-dim)
+           :when (= item (get-in maze [x y]))]
+       [x y])))
 
-(defn for-science-rec [seen [maze & rest :as all]]
-  ;; #p "begin"
-  ;; #p (find-mouse maze)
-  ;; #p maze
-  ;; #p (count all)
-  ;; #p (count seen)
-  (if (seq maze)
-    (if (seen maze)
-      (for-science-rec seen rest)
-      (let [mouse (find-mouse maze)]
-        (if (cheese-found? maze mouse)
-          true
-          (for-science-rec
-           (conj seen mouse)
-           (apply conj rest
-                  (map #(assoc-in
-                         (assoc-in maze % \M) ; update mouse position
-                         mouse \#)            ; build a wall where mouse has been
-                       (candidates maze mouse)))))))
-    false))
+ (defn find-mouse [maze]
+   (first (find-items maze \M)))
 
-(defn for-science [maze]
-  (for-science-rec #{} [(vec (map #(vec (map identity %)) maze))]))
+ (defn find-cheese [maze]
+  (first (find-items maze \C)))
+
+ (defn candidates [maze]
+   (let [max-x-dim (count maze)
+         max-y-dim (count (maze 0))
+         mouse     (find-mouse maze)
+         neighbors (von-neumann-neighborhood mouse max-x-dim max-y-dim)]
+     (filter #(= (get-in maze %) \space) neighbors)))
+
+ (defn cheese-found? [maze]
+   (first
+    (let [max-x-dim (count maze)
+          max-y-dim (count (maze 0))
+          mouse-pos (find-mouse maze)]
+      (for [neighbor (von-neumann-neighborhood mouse-pos max-x-dim max-y-dim)
+            :when (= \C (get-in maze neighbor))]
+        true))))
+
+ (defn new-mouse-positions [maze seen]
+   (let [mouse-pos (find-mouse maze)]
+     (filter (fn[x] (not= x nil))
+           (map #(when (not (contains? seen %))
+                  (assoc-in (assoc-in maze % \M) mouse-pos \space))      
+             (candidates maze)))))
+
+ (defn for-science
+   ([maze]
+    (for-science [(vec (map #(vec (map identity %)) maze))] #{}))
+   ([[maze & rest] seen]
+    (if (seq maze)
+     (if (cheese-found? maze)
+       true
+       (if (seen maze)
+         (for-science rest seen)
+         (for-science
+          (apply conj rest (new-mouse-positions maze seen))
+          (conj seen (find-mouse maze)))))
+     false))))
 
 (comment
-  (= true  (for-science ["M   C"]))       ; true
-  (= true  (for-science ["C   M"]))       ; true
-  (= true  (for-science ["C   M"          ; true
-                         "     "]))
-  (= false (for-science ["M # C"]))       ; true
-  (= true  (for-science ["#######"        ; true
+  (= true  (for-science ["M   C"]))     ; true
+  (= true  (for-science ["C   M"]))     ; true
+  (= true  (for-science ["C   M"        ; true
+                         "     "]))     
+  (= false (for-science ["M # C"]))     ; true
+  (= true  (for-science ["#######"      ; true
                          "#     #"
                          "#  #  #"
                          "#M # C#"
                          "#######"]))
-  (= false (for-science ["########"       ; true
+  (= false (for-science ["########"     ; true
                          "#M  #  #"
                          "#   #  #"
                          "# # #  #"
@@ -2447,96 +2438,34 @@
                          "#  #   #"
                          "#  #  C#"
                          "########"]))
-  (= false (for-science ["M     "         ; true
+  (= false (for-science ["M     "       ; true
+                         "      "
+                         "    ##"
+                         "    #C"]))
+  (= false (for-science ["M     "       ; true
                          "      "
                          "      "
                          "      "
                          "    ##"
                          "    #C"]))
-  (= false (for-science ["      "         ; true
+  (= false (for-science ["      "       ; true
                          " M    "
                          "      "
                          "      "
                          "    ##"
-                         "    #C"]))
-  (= true  (for-science ["C######"        ; true
+                         "    #C"])) 
+  (= true  (for-science ["C######"      ; true
                          " #     "
                          " #   # "
                          " #   #M"
-                         "     # "]))
-  (= true  (for-science ["C# # # #"       ; true
+                         "     # "])) 
+  (= true  (for-science ["C# # # #"     ; true
                          "        "
                          "# # # # "
                          "        "
                          " # # # #"
                          "        "
                          "# # # #M"])))
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(von-neumann-neighborhood [5 5] 5 5) ; ()
-(von-neumann-neighborhood [4 4] 5 5) ; ([4 3] [3 4])
-(von-neumann-neighborhood [3 3] 5 5) ; ([3 2] [3 4] [2 3] [4 3])
-(von-neumann-neighborhood [0 1] 5 5) ; ([0 0] [0 2] [1 1])
-(von-neumann-neighborhood [0 0] 5 5) ; ([0 1] [1 0])
-(von-neumann-neighborhood [2 2] 5 5) ; ([2 1] [2 3] [1 2] [3 2])
-
-;; pos = [x y]
-(cheese-found? sample-maze [2 5]) ; true
-(cheese-found? sample-maze [3 1]) ; nil
-
-(candidates sample-maze (find-mouse  sample-maze)) ; ([3 2] [2 1])
-(candidates sample-maze (find-cheese sample-maze)) ; ([3 4] [2 5])
-
-(find-mouse  ["#######"
-              "#     #"
-              "#  #  #"
-              "#M # C#"
-              "#######"])
-; [3 1]
-
-(find-cheese ["#######"
-              "#     #"
-              "#  #  #"
-              "#M # C#"
-              "#######"])
-; [3 5]
-
-(get-in ["#######"
-         "#     #"
-         "#  #  #"
-         "#M # C#"
-         "#######"] [0 5]) ; \#
-
-(get-in ["#######"
-         "#     #"
-         "#  #  #"
-         "#M # C#"
-         "#######"] [1 5]) ; \space
-
-(get-in ["#######"
-         "#     #"
-         "#  #  #"
-         "#M # C#"
-         "#######"] [2 5]) ; \space
-
-(get-in ["#######"
-         "#     #"
-         "#  #  #"
-         "#M # C#"
-         "#######"] [3 5]) ; \C
-
-(get-in ["#######"
-         "#     #"
-         "#  #  #"
-         "#M # C#"
-         "#######"] [4 5]) ; \#
-
-(get-in ["#######"
-         "#     #"
-         "#  #  #"
-         "#M # C#"
-         "#######"] [5 5]) ; nil
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 118 - Reimplement Map (easy)
