@@ -2496,38 +2496,39 @@
 ;; 119 - Win at TicTacToe (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn win? [piece board]
-  (let [coords ['((0 0) (0 1) (0 2))   ; rows (3)
-                '((1 0) (1 1) (1 2))
-                '((2 0) (2 1) (2 2))
-                '((0 0) (1 0) (2 0))   ; cols (3)
-                '((0 1) (1 1) (2 1))
-                '((0 2) (1 2) (2 2))
-                '((0 0) (1 1) (2 2))   ; diag (2)
-                '((0 2) (1 1) (2 0))]]
-    (loop [[[a b c :as cs] & tail] coords]
-      (if cs
-        (let [fst (get-in board a)
-              snd (get-in board b)
-              trd (get-in board c)]
-          (if (= piece fst snd trd)
-            true
-            (recur tail)))
-        false))))
+(comment
+ (defn win? [piece board]
+   (let [coords ['((0 0) (0 1) (0 2))   ; rows (3)
+                 '((1 0) (1 1) (1 2))
+                 '((2 0) (2 1) (2 2))
+                 '((0 0) (1 0) (2 0))   ; cols (3)
+                 '((0 1) (1 1) (2 1))
+                 '((0 2) (1 2) (2 2))
+                 '((0 0) (1 1) (2 2))   ; diag (2)
+                 '((0 2) (1 1) (2 0))]]
+     (loop [[[a b c :as cs] & tail] coords]
+       (if cs
+         (let [fst (get-in board a)
+               snd (get-in board b)
+               trd (get-in board c)]
+           (if (= piece fst snd trd)
+             true
+             (recur tail)))
+         false))))
 
-(defn find-holes [board]
-  (for [x (range 3)
-        y (range 3)
-        :let [p (get-in board [x y])]
-        :when (= p :e)]
-    [x y]))
+ (defn find-holes [board]
+   (for [x (range 3)
+         y (range 3)
+         :let [p (get-in board [x y])]
+         :when (= p :e)]
+     [x y]))
 
-(defn win [piece board]
-  (let [holes (find-holes board)]
-    (set
-      (filter
-        (fn [hole] (win? piece (assoc-in board hole piece)))
-        holes))))
+ (defn win [piece board]
+   (let [holes (find-holes board)]
+     (set
+       (filter
+         (fn [hole] (win? piece (assoc-in board hole piece)))
+         holes)))))
 
 (comment
     (= (win :x [[:o :e :e]     ; true
@@ -2670,6 +2671,47 @@
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 124 - Analyze Reversi (hard)
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn reversi [board color])
+
+(comment
+    (= {[1 3] #{[1 2]}
+        [0 2] #{[1 2]}
+        [3 1] #{[2 1]}
+        [2 0] #{[2 1]}}
+       (reversi '[[e e e e]
+                  [e w b e]
+                  [e b w e]
+                  [e e e e]] 'w))
+    (= {[3 2] #{[2 2]}
+        [3 0] #{[2 1]}
+        [1 0] #{[1 1]}}
+       (reversi '[[e e e e]
+                  [e w b e]
+                  [w w w e]
+                  [e e e e]] 'b))
+    (= {[0 3] #{[1 2]}
+        [1 3] #{[1 2]}
+        [3 3] #{[2 2]}
+        [2 3] #{[2 2]}}
+       (reversi '[[e e e e]
+                  [e w b e]
+                  [w w b e]
+                  [e e b e]] 'w))
+    (= {[0 3] #{[2 1] [1 2]}
+        [1 3] #{[1 2]}
+        [2 3] #{[2 1] [2 2]}}
+       (reversi '[[e e w e]
+                  [b b w e]
+                  [b w w e]
+                  [b w w w]] 'b))
+    (= {[0 3] #{[2 1] [1 2]}
+        [1 3] #{[1 2]}
+        [2 3] #{[2 1] [2 2]}}
+       (reversi '[[e e w e]
+                  [b b w e]
+                  [b w w e]
+                  [b w w w]] 'b)))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 125 - Gus' Quinundrum (hard)
